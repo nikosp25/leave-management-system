@@ -1,0 +1,3 @@
+INSERT INTO roles (name) VALUES ('EMPLOYEE'), ('MANAGER'), ('ADMIN');
+INSERT INTO leave_types (name) VALUES ('SICK_LEAVE'), ('PERSONAL_LEAVE');
+INSERT INTO leave_statuses (name) VALUES ('PENDING'), ('APPROVED'), ('REJECTED');
