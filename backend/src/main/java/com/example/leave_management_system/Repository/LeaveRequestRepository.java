@@ -2,6 +2,9 @@ package com.example.leave_management_system.Repository;
 
 
 import com.example.leave_management_system.model.LeaveRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,11 +21,12 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
 
     Optional<LeaveRequest> findByUuidAndDeletedFalse(UUID uuid);
 
-    List<LeaveRequest> findByUser_UuidAndDeletedFalseOrderByStartDateDesc(UUID userUuid);
+    Page<LeaveRequest> findByUser_UuidAndDeletedFalse(UUID userUuid, Pageable pageable);
 
-    List<LeaveRequest> findByLeaveStatus_NameAndDeletedFalseOrderByStartDateAsc(String statusName);
+    Page<LeaveRequest> findByLeaveStatus_NameAndDeletedFalse(String statusName, Pageable pageable);
 
-    List<LeaveRequest> findAllByDeletedFalse();
+    Page<LeaveRequest> findAllByDeletedFalse(Pageable pageable);
+
 
     // Checks for overlapping date bookings
     @Query("""

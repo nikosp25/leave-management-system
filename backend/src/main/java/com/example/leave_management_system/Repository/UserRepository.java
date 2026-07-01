@@ -1,6 +1,8 @@
 package com.example.leave_management_system.Repository;
 
 import com.example.leave_management_system.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,9 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUuidAndDeletedFalse(UUID uuid);
 
-    List<User> findByRole_NameAndDeletedFalse(String roleName);
+    Page<User> findByRole_NameAndDeletedFalse(String roleName, Pageable pageable);
 
-    List<User> findAllByDeletedFalse();
+    Page<User> findAllByDeletedFalse(Pageable pageable);
 
     Optional<User> findByUuid(UUID uuid);
 
