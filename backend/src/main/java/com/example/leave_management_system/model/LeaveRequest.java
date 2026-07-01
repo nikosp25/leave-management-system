@@ -42,6 +42,9 @@ public class LeaveRequest extends AbstractEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column( columnDefinition = "TEXT")
-    private String reason;
+    @Column(columnDefinition = "TEXT")
+    private String reason;   //for employees
+
+    @Column(name = "manager_comment", columnDefinition = "TEXT")
+    private String managerComment; //for managers
 }
