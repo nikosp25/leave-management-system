@@ -27,6 +27,8 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
 
     Page<LeaveRequest> findAllByDeletedFalse(Pageable pageable);
 
+    Page<LeaveRequest> findByDeletedTrue(Pageable pageable);
+
 
     // Checks for overlapping date bookings
     @Query("""
