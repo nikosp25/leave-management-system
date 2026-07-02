@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN available_leave_days INT NOT NULL DEFAULT 25;
