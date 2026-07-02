@@ -39,5 +39,8 @@ public class User extends AbstractEntity {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @Column(name = "available_leave_days", nullable = false)
+    private Integer availableLeaveDays;
+
 
 }
