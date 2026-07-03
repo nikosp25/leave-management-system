@@ -30,4 +30,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUuid(UUID uuid);
 
+    Page<User> findByDeletedTrue(Pageable pageable);
+
 }
