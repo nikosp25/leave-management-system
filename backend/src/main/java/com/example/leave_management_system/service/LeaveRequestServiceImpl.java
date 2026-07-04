@@ -8,6 +8,7 @@ import com.example.leave_management_system.Repository.UserRepository;
 import com.example.leave_management_system.dto.leaveRequest.LeaveRequestInsertDTO;
 import com.example.leave_management_system.dto.leaveRequest.LeaveRequestReadOnlyDTO;
 import com.example.leave_management_system.dto.leaveRequest.LeaveRequestUpdateDTO;
+import com.example.leave_management_system.exceptions.*;
 import com.example.leave_management_system.mapper.LeaveRequestMapper;
 import com.example.leave_management_system.model.LeaveRequest;
 import com.example.leave_management_system.model.LeaveStatus;
@@ -43,31 +44,31 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     @Transactional
     public LeaveRequestReadOnlyDTO createLeaveRequest(UUID userUuid, LeaveRequestInsertDTO dto) {
         if (dto.startDate().isAfter(dto.endDate())) {
-            throw new IllegalArgumentException("Start date cannot be after end date.");
+            throw new InvalidDateRangeException("Start date cannot be after end date.");
         }
 
         User user = userRepository.findByUuidAndDeletedFalse(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Check overlapping leaves (ignoring REJECTED statuses)
         boolean isOverlapping = leaveRequestRepository.existsOverlappingLeave(
                 userUuid, STATUS_REJECTED, dto.startDate(), dto.endDate());
         if (isOverlapping) {
-            throw new IllegalArgumentException("You already have a leave request during this period.");
+            throw new OverlappingLeaveException("You already have a leave request during this period.");
         }
 
         // Prevent submission if they don't have enough balance (even before approval)
         int requestedDays = calculateWorkingDays(dto.startDate(), dto.endDate());
         if (user.getAvailableLeaveDays() < requestedDays) {
-            throw new IllegalArgumentException("Insufficient leave balance. You requested " + requestedDays +
+            throw new InsufficientLeaveBalanceException("Insufficient leave balance. You requested " + requestedDays +
                     " working days, but only have " + user.getAvailableLeaveDays() + " available.");
         }
 
         LeaveType leaveType = leaveTypeRepository.findByName(dto.leaveTypeName())
-                .orElseThrow(() -> new IllegalArgumentException("Leave type not found"));
+                .orElseThrow(() -> new LeaveTypeNotFoundException("Leave type not found"));
 
         LeaveStatus pendingStatus = leaveStatusRepository.findByName(STATUS_PENDING)
-                .orElseThrow(() -> new IllegalArgumentException("Pending status not found in database"));
+                .orElseThrow(() -> new LeaveStatusNotFoundException("Pending status not found in database"));
 
         LeaveRequest leaveRequest = leaveRequestMapper.toEntity(dto, user, leaveType, pendingStatus);
 
@@ -81,10 +82,10 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     @Transactional
     public LeaveRequestReadOnlyDTO updateLeaveRequestStatus(UUID leaveUuid, LeaveRequestUpdateDTO dto) {
         LeaveRequest leaveRequest = leaveRequestRepository.findByUuidAndDeletedFalse(leaveUuid)
-                .orElseThrow(() -> new IllegalArgumentException("Leave request not found"));
+                .orElseThrow(() -> new LeaveRequestNotFoundException("Leave request not found"));
 
         LeaveStatus newStatus = leaveStatusRepository.findByName(dto.leaveStatusName())
-                .orElseThrow(() -> new IllegalArgumentException("Status not found"));
+                .orElseThrow(() -> new LeaveStatusNotFoundException("Status not found"));
 
         String oldStatusName = leaveRequest.getLeaveStatus().getName();
         String newStatusName = newStatus.getName();
@@ -98,7 +99,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         if (!STATUS_APPROVED.equals(oldStatusName) && STATUS_APPROVED.equals(newStatusName)) {
             // Approving a request: Deduct days
             if (user.getAvailableLeaveDays() < workingDays) {
-                throw new IllegalArgumentException("User does not have enough leave balance to approve this request.");
+                throw new InsufficientLeaveBalanceException("User does not have enough leave balance to approve this request.");
             }
             user.setAvailableLeaveDays(user.getAvailableLeaveDays() - workingDays);
 
@@ -119,7 +120,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     @Override
     public LeaveRequestReadOnlyDTO getLeaveRequestByUuid(UUID leaveUuid) {
         LeaveRequest leaveRequest = leaveRequestRepository.findByUuidAndDeletedFalse(leaveUuid)
-                .orElseThrow(() -> new IllegalArgumentException("Leave request not found"));
+                .orElseThrow(() -> new LeaveRequestNotFoundException("Leave request not found"));
         return leaveRequestMapper.toReadOnlyDTO(leaveRequest);
     }
 
