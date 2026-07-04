@@ -19,11 +19,13 @@ public interface IUserService {
 
     // Read Operations (Active Users)
     UserReadOnlyDTO getUserByUuid(UUID userUuid);
-//    User getUserByEmailForSecurity(String email); // Returns the Entity for Spring Security
+    UserReadOnlyDTO getUserByEmail(String email);
+
     Page<UserReadOnlyDTO> getAllUsers(Pageable pageable);
     Page<UserReadOnlyDTO> getUsersByRole(String roleName, Pageable pageable);
 
     // Read Operations (Deleted Users)
     Page<UserReadOnlyDTO> getDeletedUsers(Pageable pageable);
     UserReadOnlyDTO getDeletedUserByUuid(UUID userUuid);
+    UserReadOnlyDTO getDeletedUserByEmail(String email);
 }
