@@ -9,6 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -38,18 +39,31 @@ public class GlobalExceptionHandler {
     // --- 2. Catch All "400 Bad Request" Exceptions ---
     @ExceptionHandler({
             InvalidDateRangeException.class,
-            InsufficientLeaveBalanceException.class
+            InsufficientLeaveBalanceException.class,
+            MethodArgumentTypeMismatchException.class
     })
-    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(Exception ex, HttpServletRequest request) {
+
+        String message = ex.getMessage();
+
+        // Custom message logic for type mismatches (e.g., sending a string as a UUID)
+        if (ex instanceof MethodArgumentTypeMismatchException) {
+            MethodArgumentTypeMismatchException typeEx = (MethodArgumentTypeMismatchException) ex;
+            message = String.format("Invalid value '%s' for parameter '%s'.",
+                    typeEx.getValue(), typeEx.getName());
+        }
+
         ErrorResponse errorResponse = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
+                message,
                 request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
+
 
     // --- 3. Catch All "409 Conflict" Exceptions ---
     @ExceptionHandler({
