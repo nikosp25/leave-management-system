@@ -8,6 +8,7 @@ public record UserReadOnlyDTO(
         String lastName,
         String email,
         String roleName,
+        Integer availableLeaveDays,
         boolean deleted
 ) {
 }
