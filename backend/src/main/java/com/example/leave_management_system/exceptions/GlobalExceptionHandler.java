@@ -49,8 +49,10 @@ public class GlobalExceptionHandler {
         // Custom message logic for type mismatches (e.g., sending a string as a UUID)
         if (ex instanceof MethodArgumentTypeMismatchException) {
             MethodArgumentTypeMismatchException typeEx = (MethodArgumentTypeMismatchException) ex;
-            message = String.format("Invalid value '%s' for parameter '%s'.",
-                    typeEx.getValue(), typeEx.getName());
+            String requiredType = typeEx.getRequiredType() != null ? typeEx.getRequiredType().getSimpleName() : "unknown";
+
+            message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
+                    typeEx.getValue(), typeEx.getName(), requiredType);
         }
 
         ErrorResponse errorResponse = new ErrorResponse(
