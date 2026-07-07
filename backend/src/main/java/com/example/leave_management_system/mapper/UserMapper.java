@@ -19,6 +19,7 @@ public class UserMapper {
                 entity.getLastName(),
                 entity.getEmail(),
                 entity.getRole() != null ? entity.getRole().getName() : null,
+                entity.getAvailableLeaveDays(),
                 entity.isDeleted()
         );
     }
