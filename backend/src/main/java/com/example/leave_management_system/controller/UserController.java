@@ -34,6 +34,18 @@ public class UserController {
     }
 
     // ---------------------------------------------------------
+    // GET: Authenticated User Context
+    // ---------------------------------------------------------
+
+    @GetMapping("/me")
+    @Operation(summary = "Get current user profile", description = "Returns the profile of the currently authenticated user based on their JWT cookie")
+    public ResponseEntity<UserReadOnlyDTO> getCurrentUser(java.security.Principal principal) {
+
+        String userEmail = principal.getName();
+        return ResponseEntity.ok(userService.getUserByEmail(userEmail));
+    }
+
+    // ---------------------------------------------------------
     // GET: Read Operations (Active Users)
     // ---------------------------------------------------------
 
