@@ -32,10 +32,17 @@ public class SecurityConfiguration {
                         // 1. PUBLIC ENDPOINTS
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // 2. PROTECTED ENDPOINTS (Must have a valid JWT cookie)
+                        // 2. SWAGGER & OPENAPI ENDPOINTS
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+
+                        // 3. PROTECTED ENDPOINTS (Must have a valid JWT cookie)
                         .requestMatchers("/api/v1/users/**").authenticated()
 
-                        // 3. CATCH-ALL (Anything else  requires authentication)
+                        // 4. CATCH-ALL (Anything else  requires authentication)
                         .anyRequest().authenticated()
                 )
 
