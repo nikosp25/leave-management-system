@@ -4,6 +4,8 @@ package com.example.leave_management_system.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,7 +29,14 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        // 1. PUBLIC ENDPOINTS
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+                        // 2. PROTECTED ENDPOINTS (Must have a valid JWT cookie)
+                        .requestMatchers("/api/v1/users/**").authenticated()
+
+                        // 3. CATCH-ALL (Anything else  requires authentication)
+                        .anyRequest().authenticated()
                 )
 
                 .sessionManagement(session -> session
@@ -43,6 +52,11 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
 
