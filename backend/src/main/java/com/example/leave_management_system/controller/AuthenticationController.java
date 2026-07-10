@@ -3,6 +3,7 @@ package com.example.leave_management_system.controller;
 
 import com.example.leave_management_system.dto.AuthenticationRequestDTO;
 import com.example.leave_management_system.dto.AuthenticationResponseDTO;
+import com.example.leave_management_system.exceptions.InvalidCredentialsException;
 import com.example.leave_management_system.security.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,9 +35,17 @@ public class AuthenticationController {
             HttpServletResponse response
     ) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.email(),
+                            request.password()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+
 
         UserDetails user = userDetailsService.loadUserByUsername(request.email());
 
