@@ -26,7 +26,7 @@ public class Role extends AbstractEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "roles_capabilities",
             joinColumns = @JoinColumn(name = "role_id"),
