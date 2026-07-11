@@ -1,0 +1,53 @@
+INSERT INTO users (
+    uuid,
+    firstname,
+    lastname,
+    email,
+    password,
+    role_id,
+    available_leave_days,
+    created_at,
+    updated_at,
+    deleted,
+    deleted_at
+)
+VALUES
+(
+    UUID_TO_BIN('11111111-1111-1111-1111-111111111111'),
+    'System',
+    'Administrator',
+    'admin@leave-demo.local',
+    '$2a$10$Vor4uN6fgu8LaxtCYTyBZu1Uc2jtxwWTLPZCkJinVVnq3jypwXtgy',
+    (SELECT id FROM roles WHERE name = 'ADMIN'),
+    25,
+    UTC_TIMESTAMP(),
+    UTC_TIMESTAMP(),
+    FALSE,
+    NULL
+),
+(
+    UUID_TO_BIN('22222222-2222-2222-2222-222222222222'),
+    'Demo',
+    'Manager',
+    'manager@leave-demo.local',
+    '$2a$10$tQ6W53nk9J7Frv/qKAf9luraDmZCUl7RIGv0QTvBbgqQzGgEvOVny',
+    (SELECT id FROM roles WHERE name = 'MANAGER'),
+    25,
+    UTC_TIMESTAMP(),
+    UTC_TIMESTAMP(),
+    FALSE,
+    NULL
+),
+(
+    UUID_TO_BIN('33333333-3333-3333-3333-333333333333'),
+    'Demo',
+    'Employee',
+    'employee@leave-demo.local',
+    '$2a$10$wZhWIw0Qs4DBpacN8lTa7eN4hHqjGJzu1YnNXMlLtArNvVSZCU.gK',
+    (SELECT id FROM roles WHERE name = 'EMPLOYEE'),
+    25,
+    UTC_TIMESTAMP(),
+    UTC_TIMESTAMP(),
+    FALSE,
+    NULL
+);
