@@ -39,6 +39,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     private static final String STATUS_PENDING = "PENDING";
     private static final String STATUS_APPROVED = "APPROVED";
     private static final String STATUS_REJECTED = "REJECTED";
+    private static final String STATUS_CANCELLED = "CANCELLED";
 
     @Override
     @Transactional
@@ -115,6 +116,70 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         userRepository.save(user); // Save the updated user balance
 
         return leaveRequestMapper.toReadOnlyDTO(updatedRequest);
+    }
+
+    @Override
+    @Transactional
+    public LeaveRequestReadOnlyDTO cancelOwnLeave(UUID leaveUuid, String userEmail) {
+
+        LeaveRequest leaveRequest = leaveRequestRepository
+                .findByUuidAndDeletedFalse(leaveUuid)
+                .orElseThrow(() ->
+                        new LeaveRequestNotFoundException("Leave request not found"));
+
+        // Ensure the authenticated user owns this leave request
+        if (!leaveRequest.getUser().getEmail().equalsIgnoreCase(userEmail)) {
+            throw new ForbiddenOperationException(
+                    "You cannot cancel another user's leave request."
+            );
+        }
+
+        String currentStatus = leaveRequest.getLeaveStatus().getName();
+
+        // Only PENDING or APPROVED requests may be cancelled
+        if (!STATUS_PENDING.equals(currentStatus)
+                && !STATUS_APPROVED.equals(currentStatus)) {
+
+            throw new LeaveCancellationNotAllowedException(
+                    "Only pending or approved leave requests can be cancelled."
+            );
+        }
+
+        // Prevent cancellation once the leave has started
+        if (!leaveRequest.getStartDate().isAfter(LocalDate.now())) {
+            throw new LeaveCancellationNotAllowedException(
+                    "A leave request cannot be cancelled after it has started."
+            );
+        }
+
+        LeaveStatus cancelledStatus = leaveStatusRepository
+                .findByName(STATUS_CANCELLED)
+                .orElseThrow(() ->
+                        new LeaveStatusNotFoundException(
+                                "Cancelled status not found in database"
+                        ));
+
+        // Restore deducted days
+        if (STATUS_APPROVED.equals(currentStatus)) {
+            int workingDays = calculateWorkingDays(
+                    leaveRequest.getStartDate(),
+                    leaveRequest.getEndDate()
+            );
+
+            User user = leaveRequest.getUser();
+            user.setAvailableLeaveDays(
+                    user.getAvailableLeaveDays() + workingDays
+            );
+
+            userRepository.save(user);
+        }
+
+        leaveRequest.setLeaveStatus(cancelledStatus);
+
+        LeaveRequest cancelledRequest =
+                leaveRequestRepository.save(leaveRequest);
+
+        return leaveRequestMapper.toReadOnlyDTO(cancelledRequest);
     }
 
     @Override

@@ -26,4 +26,6 @@ public interface ILeaveRequestService {
 
     List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year);
 
+    LeaveRequestReadOnlyDTO cancelOwnLeave(UUID leaveUuid, String userEmail);
+
 }
