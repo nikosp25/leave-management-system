@@ -99,4 +99,18 @@ public class LeaveRequestController {
 
         return ResponseEntity.ok(leaveRequestService.updateLeaveRequestStatus(uuid, dto));
     }
+
+    @PatchMapping("/{uuid}/cancel")
+    @Operation(
+            summary = "Cancel own leave request",
+            description = "Allows the authenticated user to cancel their own pending or approved future leave request"
+    )
+    public ResponseEntity<LeaveRequestReadOnlyDTO> cancelOwnLeave(
+            @PathVariable UUID uuid,
+            java.security.Principal principal) {
+
+        return ResponseEntity.ok(
+                leaveRequestService.cancelOwnLeave(uuid, principal.getName())
+        );
+    }
 }
