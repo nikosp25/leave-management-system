@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ILeaveRequestService {
-    LeaveRequestReadOnlyDTO createLeaveRequest(UUID userUuid, LeaveRequestInsertDTO dto);
+    LeaveRequestReadOnlyDTO createLeaveRequest(UUID userUuid, LeaveRequestInsertDTO dto, String userEmail);
 
     LeaveRequestReadOnlyDTO updateLeaveRequestStatus(UUID leaveUuid, LeaveRequestUpdateDTO dto);
 
     LeaveRequestReadOnlyDTO getLeaveRequestByUuid(UUID leaveUuid);
 
-    Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid, Pageable pageable);
+    Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid,String userEmail, boolean canReadAll,Pageable pageable);
 
     Page<LeaveRequestReadOnlyDTO> getAllLeaveRequests(Pageable pageable);
 
@@ -24,7 +24,7 @@ public interface ILeaveRequestService {
 
     Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByStatus(String statusName, Pageable pageable);
 
-    List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year);
+    List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year, String userEmail, boolean canReadAll);
 
     LeaveRequestReadOnlyDTO cancelOwnLeave(UUID leaveUuid, String userEmail);
 
