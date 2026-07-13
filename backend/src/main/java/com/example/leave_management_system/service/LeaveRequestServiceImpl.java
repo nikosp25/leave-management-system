@@ -43,7 +43,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
     @Override
     @Transactional
-    public LeaveRequestReadOnlyDTO createLeaveRequest(UUID userUuid, LeaveRequestInsertDTO dto) {
+    public LeaveRequestReadOnlyDTO createLeaveRequest(UUID userUuid, LeaveRequestInsertDTO dto, String userEmail) {
         if (dto.startDate().isAfter(dto.endDate())) {
             throw new InvalidDateRangeException("Start date cannot be after end date.");
         }
@@ -51,9 +51,15 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         User user = userRepository.findByUuidAndDeletedFalse(userUuid)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Check overlapping leaves (ignoring REJECTED statuses)
+        if (!user.getEmail().equalsIgnoreCase(userEmail)) {
+            throw new ForbiddenOperationException(
+                    "You cannot create a leave request for another user."
+            );
+        }
+
+        // Check overlapping leaves (ignoring REJECTED and CANCELLED requests)
         boolean isOverlapping = leaveRequestRepository.existsOverlappingLeave(
-                userUuid, STATUS_REJECTED, dto.startDate(), dto.endDate());
+                userUuid, List.of(STATUS_REJECTED, STATUS_CANCELLED), dto.startDate(), dto.endDate());
         if (isOverlapping) {
             throw new OverlappingLeaveException("You already have a leave request during this period.");
         }
@@ -90,6 +96,15 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
         String oldStatusName = leaveRequest.getLeaveStatus().getName();
         String newStatusName = newStatus.getName();
+
+        // Only allow this method to change the status to APPROVED or REJECTED.
+        if (!STATUS_APPROVED.equals(newStatusName)
+                && !STATUS_REJECTED.equals(newStatusName)) {
+
+            throw new LeaveStatusChangeNotAllowedException(
+                    "The leave status can only be changed to APPROVED or REJECTED."
+            );
+        }
 
         // Calculate actual working days for this request
         int workingDays = calculateWorkingDays(leaveRequest.getStartDate(), leaveRequest.getEndDate());
@@ -190,7 +205,15 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
-    public Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid, Pageable pageable) {
+    public Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid, String userEmail,boolean canReadAll,Pageable pageable) {
+        User requestedUser = userRepository.findByUuidAndDeletedFalse(userUuid)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!canReadAll && !requestedUser.getEmail().equalsIgnoreCase(userEmail)) {
+            throw new ForbiddenOperationException(
+                    "You cannot view another user's leave requests."
+            );
+        }
         return leaveRequestRepository.findByUser_UuidAndDeletedFalse(userUuid, pageable)
                 .map(leaveRequestMapper::toReadOnlyDTO);
     }
@@ -214,7 +237,15 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
-    public List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year) {
+    public List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year, String userEmail,boolean canReadAll) {
+        User requestedUser = userRepository.findByUuidAndDeletedFalse(userUuid)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!canReadAll && !requestedUser.getEmail().equalsIgnoreCase(userEmail)) {
+            throw new ForbiddenOperationException(
+                    "You cannot view another user's approved leave history."
+            );
+        }
         return leaveRequestRepository.findApprovedRequestsForUserInYear(userUuid, year)
                 .stream()
                 .map(leaveRequestMapper::toReadOnlyDTO)
