@@ -11,6 +11,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 
 import java.time.Instant;
@@ -43,7 +44,8 @@ public class GlobalExceptionHandler {
             InvalidDateRangeException.class,
             InsufficientLeaveBalanceException.class,
             MethodArgumentTypeMismatchException.class,
-            LeaveCancellationNotAllowedException.class
+            LeaveCancellationNotAllowedException.class,
+            LeaveStatusChangeNotAllowedException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequestExceptions(Exception ex, HttpServletRequest request) {
 
@@ -154,8 +156,11 @@ public class GlobalExceptionHandler {
 
 
     // --- 5c. Catch "403 Forbidden" Operations ---
-    @ExceptionHandler(ForbiddenOperationException.class)
-    public ResponseEntity<ErrorResponse> handleForbiddenOperation(ForbiddenOperationException ex, HttpServletRequest request) {
+    @ExceptionHandler({
+            ForbiddenOperationException.class,
+            AuthorizationDeniedException.class})
+
+    public ResponseEntity<ErrorResponse> handleForbiddenOperation(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.FORBIDDEN.value(),
