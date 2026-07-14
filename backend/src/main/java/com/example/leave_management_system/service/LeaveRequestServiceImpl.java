@@ -97,6 +97,15 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         String oldStatusName = leaveRequest.getLeaveStatus().getName();
         String newStatusName = newStatus.getName();
 
+        // Rejected and cancelled requests cannot be changed again.
+        if (STATUS_REJECTED.equals(oldStatusName)
+                || STATUS_CANCELLED.equals(oldStatusName)) {
+
+            throw new LeaveStatusChangeNotAllowedException(
+                    "Rejected or cancelled leave requests cannot have their status changed."
+            );
+        }
+
         // Only allow this method to change the status to APPROVED or REJECTED.
         if (!STATUS_APPROVED.equals(newStatusName)
                 && !STATUS_REJECTED.equals(newStatusName)) {
