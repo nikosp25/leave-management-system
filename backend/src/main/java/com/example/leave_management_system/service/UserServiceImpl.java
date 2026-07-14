@@ -30,16 +30,11 @@ public class UserServiceImpl implements IUserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
-    // Spring Security's password encoder
     private final PasswordEncoder passwordEncoder;
 
     private static final int DEFAULT_LEAVE_DAYS = 25;
 
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Onboarding a new employee into the system.
-     */
     @Override
     @Transactional
     public UserReadOnlyDTO createUser(UserInsertDTO dto) {
@@ -52,10 +47,10 @@ public class UserServiceImpl implements IUserService {
 
         User user = userMapper.toEntity(dto, role);
 
-        // 1. Hash the password securely
+        // Hash the password before saving
         user.setPassword(passwordEncoder.encode(dto.password()));
 
-        // 2. Set the default 25-day balance
+        // Give new users the default leave balance
         user.setAvailableLeaveDays(DEFAULT_LEAVE_DAYS);
 
         User savedUser = userRepository.save(user);
@@ -63,10 +58,6 @@ public class UserServiceImpl implements IUserService {
     }
 
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Updating an employee's details or promoting their role.
-     */
     @Override
     @Transactional
     public UserReadOnlyDTO updateUser(UUID userUuid, UserUpdateDTO dto) {
@@ -89,10 +80,7 @@ public class UserServiceImpl implements IUserService {
         return userMapper.toReadOnlyDTO(userRepository.save(user));
     }
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Manually correcting leave days (e.g., granting bonus days or docking days).
-     */
+
     @Override
     @Transactional
     public UserReadOnlyDTO adjustLeaveBalance(UUID userUuid, int daysToAddOrSubtract) {
@@ -112,10 +100,7 @@ public class UserServiceImpl implements IUserService {
         return userMapper.toReadOnlyDTO(userRepository.save(user));
     }
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Offboarding an employee (revoking access while keeping history).
-     */
+
     @Override
     @Transactional
     public void deleteUser(UUID userUuid) {
@@ -126,40 +111,28 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
     }
 
-    /*
-     * Intended Roles: ADMIN / MANAGER
-     * Purpose: Viewing the company directory of all active employees.
-     */
+
     @Override
     public Page<UserReadOnlyDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAllByDeletedFalse(pageable)
                 .map(userMapper::toReadOnlyDTO);
     }
 
-    /*
-     * Intended Roles: ADMIN / MANAGER
-     * Purpose: Filtering the company directory (e.g., "Show me all Managers").
-     */
+
     @Override
     public Page<UserReadOnlyDTO> getUsersByRole(String roleName, Pageable pageable) {
         return userRepository.findByRole_NameAndDeletedFalse(roleName, pageable)
                 .map(userMapper::toReadOnlyDTO);
     }
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Auditing former employees who have left the company.
-     */
+
     @Override
     public Page<UserReadOnlyDTO> getDeletedUsers(Pageable pageable) {
         return userRepository.findByDeletedTrue(pageable)
                 .map(userMapper::toReadOnlyDTO);
     }
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Viewing the specific profile of a former employee.
-     */
+
     @Override
     public UserReadOnlyDTO getDeletedUserByUuid(UUID userUuid) {
         // Fetch ignoring the deleted=false filter
@@ -170,10 +143,6 @@ public class UserServiceImpl implements IUserService {
     }
 
 
-    /*
-     * Intended Roles: ALL ROLES (Admin, Manager, Employee)
-     * Purpose: Viewing a specific user's public profile. Employees use this to see their own data.
-     */
     @Override
     public UserReadOnlyDTO getUserByUuid(UUID userUuid) {
         User user = userRepository.findByUuidAndDeletedFalse(userUuid)
@@ -181,10 +150,7 @@ public class UserServiceImpl implements IUserService {
         return userMapper.toReadOnlyDTO(user);
     }
 
-    /*
-     * Intended Roles: ALL ROLES (Admin, Manager, Employee)
-     * Purpose: Viewing a specific active user's public profile via email lookup.
-     */
+
     @Override
     public UserReadOnlyDTO getUserByEmail(String email) {
         User user = userRepository.findByEmailAndDeletedFalse(email)
@@ -192,10 +158,7 @@ public class UserServiceImpl implements IUserService {
         return userMapper.toReadOnlyDTO(user);
     }
 
-    /*
-     * Intended Roles: ADMIN
-     * Purpose: Viewing the specific profile of a former (deleted) employee using their email.
-     */
+
     @Override
     public UserReadOnlyDTO getDeletedUserByEmail(String email) {
         // Fetch ignoring the deleted=false filter
