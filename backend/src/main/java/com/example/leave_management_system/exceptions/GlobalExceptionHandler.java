@@ -1,7 +1,6 @@
 package com.example.leave_management_system.exceptions;
 
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +16,10 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+/**
+ * Handles exceptions across all REST controllers and returns
+ * consistent JSON error responses with the correct HTTP status.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -91,7 +94,6 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
 
 
     // --- 3. Catch All "409 Conflict" Exceptions ---
