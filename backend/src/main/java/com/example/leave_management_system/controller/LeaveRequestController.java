@@ -41,7 +41,7 @@ public class LeaveRequestController {
     @Operation(summary = "Create a leave request", description = "Submits a new request for time off for a specific user. Status defaults to PENDING.")
     public ResponseEntity<LeaveRequestReadOnlyDTO> createLeaveRequest(
             @PathVariable UUID userUuid,
-            @Valid @RequestBody LeaveRequestInsertDTO dto,Principal principal) {
+            @Valid @RequestBody LeaveRequestInsertDTO dto, Principal principal) {
 
         LeaveRequestReadOnlyDTO createdRequest = leaveRequestService.createLeaveRequest(userUuid, dto, principal.getName());
         return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
@@ -70,12 +70,12 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by user", description = "Retrieves a paginated list of all leave requests submitted by a specific user")
     public ResponseEntity<Page<LeaveRequestReadOnlyDTO>> getLeaveRequestsByUser(
             @PathVariable UUID userUuid,
-            @ParameterObject Pageable pageable,Authentication authentication)  {
+            @ParameterObject Pageable pageable, Authentication authentication) {
         boolean canReadAll = authentication.getAuthorities().stream()
                 .anyMatch(authority ->
                         authority.getAuthority().equals("READ_ALL_LEAVE")
                 );
-        return ResponseEntity.ok(leaveRequestService.getLeaveRequestsByUser(userUuid,authentication.getName(),canReadAll,pageable));
+        return ResponseEntity.ok(leaveRequestService.getLeaveRequestsByUser(userUuid, authentication.getName(), canReadAll, pageable));
     }
 
 
@@ -93,13 +93,13 @@ public class LeaveRequestController {
     @Operation(summary = "Get approved leaves for year", description = "Retrieves a list of all APPROVED leave requests for a specific user within a given calendar year")
     public ResponseEntity<List<LeaveRequestReadOnlyDTO>> getApprovedLeavesForUserInYear(
             @PathVariable UUID userUuid,
-            @PathVariable int year,Authentication authentication) {
+            @PathVariable int year, Authentication authentication) {
 
         boolean canReadAll = authentication.getAuthorities().stream()
                 .anyMatch(authority ->
                         authority.getAuthority().equals("READ_ALL_LEAVE")
                 );
-        return ResponseEntity.ok(leaveRequestService.getApprovedLeavesForUserInYear(userUuid, year,authentication.getName(),canReadAll));
+        return ResponseEntity.ok(leaveRequestService.getApprovedLeavesForUserInYear(userUuid, year, authentication.getName(), canReadAll));
     }
 
     @PreAuthorize("hasAuthority('READ_ALL_LEAVE')")
