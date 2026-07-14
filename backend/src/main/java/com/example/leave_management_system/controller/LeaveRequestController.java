@@ -6,6 +6,7 @@ import com.example.leave_management_system.dto.leaveRequest.LeaveRequestReadOnly
 import com.example.leave_management_system.dto.leaveRequest.LeaveRequestUpdateDTO;
 import com.example.leave_management_system.service.ILeaveRequestService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/leave-requests")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "cookieAuth")
 @Tag(name = "Leave Requests", description = "Endpoints for submitting, approving, and managing employee time off")
 public class LeaveRequestController {
 

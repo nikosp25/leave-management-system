@@ -6,6 +6,7 @@ import com.example.leave_management_system.dto.user.UserReadOnlyDTO;
 import com.example.leave_management_system.dto.user.UserUpdateDTO;
 import com.example.leave_management_system.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "cookieAuth")
 @Tag(name = "User Management", description = "Endpoints for managing employee profiles, roles, and leave balances")
 public class UserController {
 
