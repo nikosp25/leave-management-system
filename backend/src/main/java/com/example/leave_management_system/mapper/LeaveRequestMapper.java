@@ -26,7 +26,8 @@ public class LeaveRequestMapper {
                 entity.getLeaveStatus() != null ? entity.getLeaveStatus().getName() : null,
                 entity.getStartDate(),
                 entity.getEndDate(),
-                entity.getReason()
+                entity.getReason(),
+                entity.getManagerComment()
         );
     }
 
