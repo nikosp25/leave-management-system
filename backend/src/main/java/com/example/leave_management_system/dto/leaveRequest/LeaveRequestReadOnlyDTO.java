@@ -10,6 +10,7 @@ public record LeaveRequestReadOnlyDTO(
         String leaveStatusName,
         LocalDate startDate,
         LocalDate endDate,
-        String reason
+        String reason,
+        String managerComment
 ) {
 }
