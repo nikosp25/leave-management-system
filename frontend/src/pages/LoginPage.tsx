@@ -1,14 +1,30 @@
-import { useState } from 'react'
-import type { SubmitEvent } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
-import type { CurrentUser } from '../types/User'
+import {useState} from 'react'
+import type {SubmitEvent} from 'react'
+import {Eye, EyeOff} from 'lucide-react'
+import type {CurrentUser} from '../types/User'
+import {useAuth} from '../hooks/useAuth'
+import {Navigate, useNavigate} from 'react-router'
 
 function LoginPage() {
+    const {
+        currentUser,
+        setCurrentUser,
+        isAuthLoading,
+    } = useAuth()
+    const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+
+    if (isAuthLoading) {
+        return <p>Loading...</p>
+    }
+
+    if (currentUser) {
+        return <Navigate to="/dashboard" replace/>
+    }
 
     async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -56,16 +72,24 @@ function LoginPage() {
                 throw new Error('Could not load the current user')
             }
 
-            const currentUser: CurrentUser = await userResponse.json()
+            const user: CurrentUser = await userResponse.json()
 
-            console.log(currentUser)
+            setCurrentUser(user)
+            navigate('/dashboard')
 
         } catch (error) {
-            setError(
-                error instanceof Error
-                    ? error.message
-                    : 'Something went wrong',
-            )
+            if (
+                error instanceof DOMException &&
+                error.name === 'TimeoutError'
+            ) {
+                setError('The server took too long to respond. Please try again.')
+            } else if (error instanceof TypeError) {
+                setError('Could not connect to the server. Please try again.')
+            } else if (error instanceof Error) {
+                setError(error.message)
+            } else {
+                setError('An unexpected error occurred. Please try again.')
+            }
         } finally {
             setIsLoading(false)
         }
@@ -154,9 +178,9 @@ function LoginPage() {
                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-700 disabled:cursor-not-allowed"
                             >
                                 {showPassword ? (
-                                    <EyeOff size={20} />
+                                    <EyeOff size={20}/>
                                 ) : (
-                                    <Eye size={20} />
+                                    <Eye size={20}/>
                                 )}
                             </button>
                         </div>
