@@ -1,30 +1,30 @@
+import {useAuth} from '../../hooks/useAuth'
+
 type NavigationItem = {
     label: string
     href: string
 }
 
-type HeaderUser = {
-    firstName: string
-    lastName: string
-    role: string
-}
-
 type HeaderProps = {
     isAuthenticated: boolean
     navigationItems?: NavigationItem[]
-    user?: HeaderUser
     onLogout?: () => void
+
 }
+
 
 function Header({
                     isAuthenticated,
                     navigationItems = [],
-                    user,
                     onLogout,
                 }: HeaderProps) {
-    const initials = user
-        ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+
+    const {currentUser} = useAuth()
+
+    const initials = currentUser
+        ? `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
         : ''
+
 
     return (
         <header className="border-b border-slate-700 bg-slate-900 shadow-md">
@@ -34,7 +34,8 @@ function Header({
                 }`}
             >
                 <a href="/" className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-sm font-bold text-white">
+                    <div
+                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-sm font-bold text-white">
                         LM
                     </div>
 
@@ -58,19 +59,21 @@ function Header({
                         </nav>
 
                         <div className="flex items-center gap-4">
-                            {user && (
+                            {currentUser && (
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/20 text-sm font-semibold text-blue-300">
+                                    <div
+                                        className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/20 text-sm font-semibold text-blue-300">
                                         {initials}
                                     </div>
 
                                     <div>
                                         <p className="text-sm font-semibold text-white">
-                                            {user.firstName} {user.lastName}
+                                            {currentUser.firstName}{' '}
+                                            {currentUser.lastName}
                                         </p>
 
                                         <p className="text-xs capitalize text-slate-400">
-                                            {user.role.toLowerCase()}
+                                            {currentUser.roleName.toLowerCase()}
                                         </p>
                                     </div>
                                 </div>
