@@ -1,10 +1,11 @@
-import { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { CurrentUser } from '../types/User'
 
 type AuthContextValue = {
     currentUser: CurrentUser | null
     setCurrentUser: (user: CurrentUser | null) => void
+    isAuthLoading: boolean
 }
 
 type AuthProviderProps = {
@@ -19,15 +20,64 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(
         null,
     )
+    const [isAuthLoading, setIsAuthLoading] = useState(true)
+
+    useEffect(() => {
+        let ignore = false
+
+        async function restoreCurrentUser() {
+            try {
+                const response = await fetch(
+                    'http://localhost:8080/api/v1/users/me',
+                    {
+                        method: 'GET',
+                        credentials: 'include',
+                        signal: AbortSignal.timeout(7_000),
+                    },
+                )
+
+                if (!response.ok) {
+                    if (!ignore) {
+                        setCurrentUser(null)
+                    }
+
+                    return
+                }
+
+                const user: CurrentUser = await response.json()
+
+                if (!ignore) {
+                    setCurrentUser(user)
+                }
+            } catch {
+                if (!ignore) {
+                    setCurrentUser(null)
+                }
+            } finally {
+                if (!ignore) {
+                    setIsAuthLoading(false)
+                }
+            }
+        }
+
+        void restoreCurrentUser()
+
+        return () => {
+            ignore = true
+        }
+    }, [])
 
     return (
         <AuthContext.Provider
             value={{
                 currentUser,
                 setCurrentUser,
+                isAuthLoading,
             }}
         >
             {children}
         </AuthContext.Provider>
     )
 }
+
+
