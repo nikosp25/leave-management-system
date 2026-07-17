@@ -1,14 +1,35 @@
-import './App.css'
-import Header from './shared/layout/Header'
-
+import { BrowserRouter, Route, Routes } from 'react-router'
+import Layout from './shared/layout/Layout'
+import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
+import ProtectedRoute from './routes/ProtectedRoute'
+import { useAuth } from './hooks/useAuth'
 
 function App() {
-  return (
-      <>
-        <Header />
-        <h1>Leave Management System</h1>
-      </>
-  )
+    const { currentUser } = useAuth()
+
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route
+                    element={
+                        <Layout
+                            isAuthenticated={currentUser !== null}
+                        />
+                    }
+                >
+                    <Route path="/" element={<LoginPage />} />
+
+                    <Route element={<ProtectedRoute />}>
+                        <Route
+                            path="/dashboard"
+                            element={<DashboardPage />}
+                        />
+                    </Route>
+                </Route>
+            </Routes>
+        </BrowserRouter>
+    )
 }
 
 export default App
