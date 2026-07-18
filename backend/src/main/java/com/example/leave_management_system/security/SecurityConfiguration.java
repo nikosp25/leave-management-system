@@ -18,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.config.Customizer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 import java.util.List;
 
@@ -56,6 +58,16 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
 
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout")
+                        .deleteCookies("jwt_token")
+                        .logoutSuccessHandler(
+                                new HttpStatusReturningLogoutSuccessHandler(
+                                        HttpStatus.NO_CONTENT
+                                )
+                        )
+                )
+
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                 )
@@ -89,7 +101,7 @@ public class SecurityConfiguration {
         );
 
         configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH")
         );
 
         configuration.setAllowedHeaders(
