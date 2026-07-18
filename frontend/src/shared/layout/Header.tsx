@@ -1,4 +1,6 @@
 import {useAuth} from '../../hooks/useAuth'
+import {Link} from 'react-router'
+import { LogOut } from 'lucide-react'
 
 type NavigationItem = {
     label: string
@@ -33,7 +35,10 @@ function Header({
                     isAuthenticated ? 'justify-between' : 'justify-center'
                 }`}
             >
-                <a href="/" className="flex items-center gap-3">
+                <Link
+                    to={isAuthenticated ? '/dashboard' : '/'}
+                    className="flex items-center gap-3"
+                >
                     <div
                         className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-sm font-bold text-white">
                         LM
@@ -42,7 +47,7 @@ function Header({
                     <span className="text-lg font-semibold text-white">
             Leave Management
           </span>
-                </a>
+                </Link>
 
                 {isAuthenticated && (
                     <>
@@ -82,9 +87,10 @@ function Header({
                             <button
                                 type="button"
                                 onClick={onLogout}
-                                className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-800"
+                                className="flex items-center gap-2 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-800"
                             >
-                                Logout
+                                <LogOut size={18} aria-hidden="true" />
+                                <span>Logout</span>
                             </button>
                         </div>
                     </>
