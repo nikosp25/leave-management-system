@@ -1,9 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
+import { useAuth } from './hooks/useAuth'
 import Layout from './shared/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
+import ApplyLeavePage from './pages/ApplyLeavePage'
 import ProtectedRoute from './routes/ProtectedRoute'
-import { useAuth } from './hooks/useAuth'
+import DashboardLayout from './components/dashboard/shared/DashboardLayout'
 
 function App() {
     const { currentUser } = useAuth()
@@ -18,13 +20,25 @@ function App() {
                         />
                     }
                 >
-                    <Route path="/" element={<LoginPage />} />
+                    <Route
+                        path="/"
+                        element={<LoginPage />}
+                    />
 
                     <Route element={<ProtectedRoute />}>
                         <Route
-                            path="/dashboard"
-                            element={<DashboardPage />}
-                        />
+                            element={<DashboardLayout />}
+                        >
+                            <Route
+                                path="/dashboard"
+                                element={<DashboardPage />}
+                            />
+
+                            <Route
+                                path="/dashboard/apply"
+                                element={<ApplyLeavePage />}
+                            />
+                        </Route>
                     </Route>
                 </Route>
             </Routes>
