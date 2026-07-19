@@ -112,6 +112,15 @@ function MyLeaveRequests() {
         }
     }
 
+    function formatName(name: string) {
+        return name
+            .toLowerCase()
+            .replaceAll('_', ' ')
+            .replace(/\b\w/g, (letter) =>
+                letter.toUpperCase(),
+            )
+    }
+
     function handleSorting(field: SortField) {
         setPageNumber(0)
 
@@ -263,7 +272,7 @@ function MyLeaveRequests() {
                                         className="border-b border-slate-100"
                                     >
                                         <td className="px-3 py-4">
-                                            {request.leaveTypeName}
+                                            {formatName(request.leaveTypeName)}
                                         </td>
 
                                         <td className="px-3 py-4">
