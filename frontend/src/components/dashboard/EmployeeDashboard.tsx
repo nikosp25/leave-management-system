@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
-import { useAuth } from '../../hooks/useAuth'
+import {useEffect, useState} from 'react'
+import {useAuth} from '../../hooks/useAuth'
 import LeaveBalanceCard from './shared/LeaveBalanceCard'
 import MyLeaveRequests from './shared/MyLeaveRequests'
-import type { LeaveRequest } from '../../types/LeaveRequest'
+import type {LeaveRequest} from '../../types/LeaveRequest'
 
 function parseLocalDate(date: string) {
     const [year, month, day] = date
@@ -39,7 +39,7 @@ function calculateWorkingDays(
 }
 
 function EmployeeDashboard() {
-    const { currentUser } = useAuth()
+    const {currentUser} = useAuth()
 
     const [usedLeaveDays, setUsedLeaveDays] =
         useState<number | null>(null)
@@ -110,11 +110,7 @@ function EmployeeDashboard() {
 
     return (
         <section>
-            <h1 className="text-2xl font-bold text-slate-900">
-                Employee Dashboard
-            </h1>
-
-            <div className="mt-6 max-w-sm">
+            <div className="max-w-sm">
                 <LeaveBalanceCard
                     availableLeaveDays={
                         currentUser.availableLeaveDays
@@ -124,10 +120,13 @@ function EmployeeDashboard() {
             </div>
 
             <div className="mt-6">
-                <MyLeaveRequests />
+                <MyLeaveRequests/>
             </div>
         </section>
     )
 }
 
 export default EmployeeDashboard
+
+
+
