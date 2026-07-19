@@ -6,6 +6,9 @@ import com.example.leave_management_system.model.Role;
 import com.example.leave_management_system.model.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Component
 public class UserMapper {
     public UserReadOnlyDTO toReadOnlyDTO(User entity) {
@@ -13,12 +16,26 @@ public class UserMapper {
             return null;
         }
 
+        Set<String> capabilities =
+                entity.getRole() != null
+                        ? entity.getRole()
+                        .getCapabilities()
+                        .stream()
+                        .map(capability ->
+                                capability.getName()
+                        )
+                        .collect(Collectors.toSet())
+                        : Set.of();
+
         return new UserReadOnlyDTO(
                 entity.getUuid(),
                 entity.getFirstName(),
                 entity.getLastName(),
                 entity.getEmail(),
-                entity.getRole() != null ? entity.getRole().getName() : null,
+                entity.getRole() != null
+                        ? entity.getRole().getName()
+                        : null,
+                capabilities,
                 entity.getAvailableLeaveDays(),
                 entity.isDeleted()
         );
