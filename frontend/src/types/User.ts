@@ -4,6 +4,7 @@ export type CurrentUser = {
     lastName: string
     email: string
     roleName: string
+    capabilities: string[]
     availableLeaveDays: number
     deleted: boolean
 }
