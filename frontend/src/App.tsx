@@ -5,7 +5,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ApplyLeavePage from './pages/ApplyLeavePage'
 import ProtectedRoute from './routes/ProtectedRoute'
-import DashboardLayout from './components/dashboard/shared/DashboardLayout'
+import DashboardLayout from './components/dashboard/components/DashboardLayout'
 
 function App() {
     const { currentUser } = useAuth()

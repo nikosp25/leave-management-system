@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import {useAuth} from '../../hooks/useAuth'
-import LeaveBalanceCard from './shared/LeaveBalanceCard'
-import MyLeaveRequests from './shared/MyLeaveRequests'
+import LeaveBalanceCard from './components/LeaveBalanceCard'
+import MyLeaveRequests from './components/MyLeaveRequests'
 import type {LeaveRequest} from '../../types/LeaveRequest'
 
 function parseLocalDate(date: string) {
