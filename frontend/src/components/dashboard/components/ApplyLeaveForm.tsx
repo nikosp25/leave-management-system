@@ -30,12 +30,27 @@ function ApplyLeaveForm() {
     const [successMessage, setSuccessMessage] =
         useState('')
 
+    function isWeekend(date: string): boolean {
+        const selectedDate = new Date(`${date}T00:00:00`)
+        const dayOfWeek = selectedDate.getDay()
+
+        return dayOfWeek === 0 || dayOfWeek === 6
+    }
+
     async function handleSubmit(event: SubmitEvent) {
         event.preventDefault()
 
         if (!currentUser) {
             setError(
                 'You must be logged in to submit a leave request.',
+            )
+            return
+        }
+
+        if (isWeekend(startDate) || isWeekend(endDate)) {
+            setSuccessMessage('')
+            setError(
+                'A leave request cannot start or end on a weekend.',
             )
             return
         }
