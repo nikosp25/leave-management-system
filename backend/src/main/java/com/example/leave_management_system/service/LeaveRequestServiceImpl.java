@@ -150,38 +150,36 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
     @Override
     @Transactional
-    public LeaveRequestReadOnlyDTO cancelOwnLeave(UUID leaveUuid, String userEmail) {
-
+    public LeaveRequestReadOnlyDTO cancelOwnLeave(
+            UUID leaveUuid,
+            String userEmail
+    ) {
         LeaveRequest leaveRequest = leaveRequestRepository
                 .findByUuidAndDeletedFalse(leaveUuid)
                 .orElseThrow(() ->
-                        new LeaveRequestNotFoundException("Leave request not found"));
+                        new LeaveRequestNotFoundException(
+                                "Leave request not found"
+                        )
+                );
 
-        // Ensure the authenticated user owns this leave request
-        if (!leaveRequest.getUser().getEmail().equalsIgnoreCase(userEmail)) {
+        // Ensure the authenticated employee owns this request
+        if (!leaveRequest.getUser()
+                .getEmail()
+                .equalsIgnoreCase(userEmail)) {
+
             throw new ForbiddenOperationException(
                     "You cannot cancel another user's leave request."
             );
         }
 
-        String currentStatus = leaveRequest.getLeaveStatus().getName();
+        String currentStatus =
+                leaveRequest.getLeaveStatus().getName();
 
-        // Only PENDING or APPROVED requests may be cancelled
-        if (!STATUS_PENDING.equals(currentStatus)
-                && !STATUS_APPROVED.equals(currentStatus)) {
-
+        // Employees may only cancel pending requests
+        if (!STATUS_PENDING.equals(currentStatus)) {
             throw new LeaveCancellationNotAllowedException(
-                    "Only pending or approved leave requests can be cancelled."
+                    "Only pending leave requests can be cancelled by the employee."
             );
-        }
-
-        // Prevent cancellation once the leave has started
-        if (STATUS_APPROVED.equals(currentStatus)
-                && !leaveRequest.getStartDate().isAfter(LocalDate.now())) {
-            throw new LeaveCancellationNotAllowedException(
-                    "An approved leave request cannot be cancelled after it has started."
-            );
-
         }
 
         LeaveStatus cancelledStatus = leaveStatusRepository
@@ -189,29 +187,81 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
                 .orElseThrow(() ->
                         new LeaveStatusNotFoundException(
                                 "Cancelled status not found in database"
-                        ));
-
-        // Restore deducted days
-        if (STATUS_APPROVED.equals(currentStatus)) {
-            int workingDays = calculateWorkingDays(
-                    leaveRequest.getStartDate(),
-                    leaveRequest.getEndDate()
-            );
-
-            User user = leaveRequest.getUser();
-            user.setAvailableLeaveDays(
-                    user.getAvailableLeaveDays() + workingDays
-            );
-
-            userRepository.save(user);
-        }
+                        )
+                );
 
         leaveRequest.setLeaveStatus(cancelledStatus);
 
         LeaveRequest cancelledRequest =
                 leaveRequestRepository.save(leaveRequest);
 
-        return leaveRequestMapper.toReadOnlyDTO(cancelledRequest);
+        return leaveRequestMapper.toReadOnlyDTO(
+                cancelledRequest
+        );
+    }
+
+    @Override
+    @Transactional
+    public LeaveRequestReadOnlyDTO cancelApprovedLeave(
+            UUID leaveUuid
+    ) {
+        LeaveRequest leaveRequest = leaveRequestRepository
+                .findByUuidAndDeletedFalse(leaveUuid)
+                .orElseThrow(() ->
+                        new LeaveRequestNotFoundException(
+                                "Leave request not found"
+                        )
+                );
+
+        String currentStatus =
+                leaveRequest.getLeaveStatus().getName();
+
+        // Management may only cancel approved requests
+        if (!STATUS_APPROVED.equals(currentStatus)) {
+            throw new LeaveCancellationNotAllowedException(
+                    "Only approved leave requests can be cancelled by management."
+            );
+        }
+
+        // Do not allow cancellation after the approved leave begins
+        if (!leaveRequest.getStartDate()
+                .isAfter(LocalDate.now())) {
+
+            throw new LeaveCancellationNotAllowedException(
+                    "An approved leave request cannot be cancelled after it has started."
+            );
+        }
+
+        LeaveStatus cancelledStatus = leaveStatusRepository
+                .findByName(STATUS_CANCELLED)
+                .orElseThrow(() ->
+                        new LeaveStatusNotFoundException(
+                                "Cancelled status not found in database"
+                        )
+                );
+
+        int workingDays = calculateWorkingDays(
+                leaveRequest.getStartDate(),
+                leaveRequest.getEndDate()
+        );
+
+        User user = leaveRequest.getUser();
+
+        // Approval deducted these days, so cancellation restores them
+        user.setAvailableLeaveDays(
+                user.getAvailableLeaveDays() + workingDays
+        );
+
+        leaveRequest.setLeaveStatus(cancelledStatus);
+
+        userRepository.save(user);
+
+        LeaveRequest cancelledRequest =
+                leaveRequestRepository.save(leaveRequest);
+
+        return leaveRequestMapper.toReadOnlyDTO(
+                cancelledRequest
+        );
     }
 
     @Override
