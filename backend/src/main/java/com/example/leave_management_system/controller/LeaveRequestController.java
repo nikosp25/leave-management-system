@@ -127,7 +127,7 @@ public class LeaveRequestController {
     @PatchMapping("/{uuid}/cancel")
     @Operation(
             summary = "Cancel own leave request",
-            description = "Allows the authenticated user to cancel their own pending or approved future leave request")
+            description = "Allows the authenticated user to cancel their own pending leave request")
     public ResponseEntity<LeaveRequestReadOnlyDTO> cancelOwnLeave(
             @PathVariable UUID uuid,
             Principal principal) {
@@ -135,6 +135,21 @@ public class LeaveRequestController {
         return ResponseEntity.ok(
                 leaveRequestService.cancelOwnLeave(uuid, principal.getName())
         );
+    }
+
+    @PatchMapping("/{leaveUuid}/management-cancel")
+    @PreAuthorize("hasAuthority('APPROVE_REJECT_LEAVE')")
+    @Operation(
+            summary = "Cancel an approved leave request",
+            description = "Allows a manager or administrator to cancel an approved leave request before it starts and restores the employee's leave balance"
+    )
+    public ResponseEntity<LeaveRequestReadOnlyDTO> cancelApprovedLeave(
+            @PathVariable UUID leaveUuid
+    ) {
+        LeaveRequestReadOnlyDTO cancelledLeave =
+                leaveRequestService.cancelApprovedLeave(leaveUuid);
+
+        return ResponseEntity.ok(cancelledLeave);
     }
 
 }
