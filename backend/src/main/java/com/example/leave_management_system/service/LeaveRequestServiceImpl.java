@@ -170,10 +170,12 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         // Prevent cancellation once the leave has started
-        if (!leaveRequest.getStartDate().isAfter(LocalDate.now())) {
+        if (STATUS_APPROVED.equals(currentStatus)
+                && !leaveRequest.getStartDate().isAfter(LocalDate.now())) {
             throw new LeaveCancellationNotAllowedException(
-                    "A leave request cannot be cancelled after it has started."
+                    "An approved leave request cannot be cancelled after it has started."
             );
+
         }
 
         LeaveStatus cancelledStatus = leaveStatusRepository
@@ -214,7 +216,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
-    public Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid, String userEmail,boolean canReadAll,Pageable pageable) {
+    public Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid, String userEmail, boolean canReadAll, Pageable pageable) {
         User requestedUser = userRepository.findByUuidAndDeletedFalse(userUuid)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -246,7 +248,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
-    public List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year, String userEmail,boolean canReadAll) {
+    public List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year, String userEmail, boolean canReadAll) {
         User requestedUser = userRepository.findByUuidAndDeletedFalse(userUuid)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
