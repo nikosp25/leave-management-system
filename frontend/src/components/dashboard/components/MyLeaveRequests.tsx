@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
 import type { LeaveRequest } from '../../../types/LeaveRequest'
 import type { PageResponse } from '../../../types/PageResponse'
+import CancelLeaveButton from './buttons/CancelLeaveButton'
 
 type SortField =
     | 'leaveType.name'
@@ -19,6 +20,8 @@ function MyLeaveRequests() {
 
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState('')
+    const [successMessage, setSuccessMessage] =
+        useState('')
 
     const [pageNumber, setPageNumber] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
@@ -28,6 +31,13 @@ function MyLeaveRequests() {
 
     const [sortDirection, setSortDirection] =
         useState<SortDirection>('desc')
+
+    const [refreshKey, setRefreshKey] = useState(0)
+
+    const canCancelOwnLeave =
+        currentUser?.capabilities.includes(
+            'CANCEL_OWN_LEAVE',
+        ) ?? false
 
     useEffect(() => {
         if (!currentUser) {
@@ -91,7 +101,16 @@ function MyLeaveRequests() {
         pageNumber,
         sortField,
         sortDirection,
+        refreshKey,
     ])
+
+    function handleCancelled() {
+        setSuccessMessage(
+            'Your leave request was cancelled successfully.',
+        )
+
+        setRefreshKey((currentKey) => currentKey + 1)
+    }
 
     function getStatusClasses(status: string) {
         switch (status) {
@@ -123,6 +142,7 @@ function MyLeaveRequests() {
 
     function handleSorting(field: SortField) {
         setPageNumber(0)
+        setSuccessMessage('')
 
         if (sortField === field) {
             setSortDirection((currentDirection) =>
@@ -151,6 +171,15 @@ function MyLeaveRequests() {
                 My leave requests
             </h2>
 
+            {successMessage && (
+                <p
+                    role="status"
+                    className="mt-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+                >
+                    {successMessage}
+                </p>
+            )}
+
             {isLoading && (
                 <p className="mt-3 text-sm text-slate-500">
                     Loading leave requests...
@@ -158,7 +187,10 @@ function MyLeaveRequests() {
             )}
 
             {error && (
-                <p className="mt-3 text-sm text-red-600">
+                <p
+                    role="alert"
+                    className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
                     {error}
                 </p>
             )}
@@ -262,45 +294,79 @@ function MyLeaveRequests() {
                                     <th className="px-3 py-3 font-semibold">
                                         Manager comment
                                     </th>
+
+                                    <th className="px-3 py-3 text-right font-semibold">
+                                        Actions
+                                    </th>
                                 </tr>
                                 </thead>
 
                                 <tbody>
-                                {leaveRequests.map((request) => (
-                                    <tr
-                                        key={request.uuid}
-                                        className="border-b border-slate-100"
-                                    >
-                                        <td className="px-3 py-4">
-                                            {formatName(request.leaveTypeName)}
-                                        </td>
+                                {leaveRequests.map(
+                                    (request) => (
+                                        <tr
+                                            key={request.uuid}
+                                            className="border-b border-slate-100"
+                                        >
+                                            <td className="px-3 py-4">
+                                                {formatName(
+                                                    request.leaveTypeName,
+                                                )}
+                                            </td>
 
-                                        <td className="px-3 py-4">
-                                            {request.startDate}
-                                        </td>
+                                            <td className="px-3 py-4">
+                                                {
+                                                    request.startDate
+                                                }
+                                            </td>
 
-                                        <td className="px-3 py-4">
-                                            {request.endDate}
-                                        </td>
+                                            <td className="px-3 py-4">
+                                                {
+                                                    request.endDate
+                                                }
+                                            </td>
 
-                                        <td className="px-3 py-4">
-                                                <span
-                                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
-                                                        request.leaveStatusName,
-                                                    )}`}
-                                                >
-                                                    {
-                                                        request.leaveStatusName
-                                                    }
-                                                </span>
-                                        </td>
+                                            <td className="px-3 py-4">
+                                                    <span
+                                                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
+                                                            request.leaveStatusName,
+                                                        )}`}
+                                                    >
+                                                        {formatName(
+                                                            request.leaveStatusName,
+                                                        )}
+                                                    </span>
+                                            </td>
 
-                                        <td className="px-3 py-4">
-                                            {request.managerComment ??
-                                                '—'}
-                                        </td>
-                                    </tr>
-                                ))}
+                                            <td className="px-3 py-4">
+                                                {request.managerComment ??
+                                                    '—'}
+                                            </td>
+
+                                            <td className="px-3 py-4 text-right">
+                                                {request.leaveStatusName ===
+                                                'PENDING' &&
+                                                canCancelOwnLeave ? (
+                                                    <CancelLeaveButton
+                                                        leaveRequestUuid={
+                                                            request.uuid
+                                                        }
+                                                        onCancelled={
+                                                            handleCancelled
+                                                        }
+                                                        onError={
+                                                            setError
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <span className="text-slate-400">
+                                                            —
+                                                        </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ),
+                                )}
                                 </tbody>
                             </table>
                         </div>
@@ -310,12 +376,13 @@ function MyLeaveRequests() {
                                 <button
                                     type="button"
                                     disabled={pageNumber === 0}
-                                    onClick={() =>
+                                    onClick={() => {
+                                        setSuccessMessage('')
                                         setPageNumber(
                                             (currentPage) =>
                                                 currentPage - 1,
                                         )
-                                    }
+                                    }}
                                     className="cursor-pointer rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     ← Previous
@@ -329,14 +396,16 @@ function MyLeaveRequests() {
                                 <button
                                     type="button"
                                     disabled={
-                                        pageNumber + 1 >= totalPages
+                                        pageNumber + 1 >=
+                                        totalPages
                                     }
-                                    onClick={() =>
+                                    onClick={() => {
+                                        setSuccessMessage('')
                                         setPageNumber(
                                             (currentPage) =>
                                                 currentPage + 1,
                                         )
-                                    }
+                                    }}
                                     className="cursor-pointer rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     Next →
