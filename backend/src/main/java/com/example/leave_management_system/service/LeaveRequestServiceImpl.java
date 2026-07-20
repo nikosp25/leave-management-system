@@ -48,6 +48,12 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
             throw new InvalidDateRangeException("Start date cannot be after end date.");
         }
 
+        if (isWeekend(dto.startDate()) || isWeekend(dto.endDate())) {
+            throw new InvalidDateRangeException(
+                    "A leave request cannot start or end on a weekend."
+            );
+        }
+
         User user = userRepository.findByUuidAndDeletedFalse(userUuid)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -279,6 +285,20 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         return workingDays;
+    }
+
+    /**
+     * Checks whether the given date falls on a weekend.
+     *
+     * @param date the date to check
+     * @return {@code true} if the date is Saturday or Sunday;
+     *         otherwise {@code false}
+     */
+    private boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+        return dayOfWeek == DayOfWeek.SATURDAY
+                || dayOfWeek == DayOfWeek.SUNDAY;
     }
 }
 
