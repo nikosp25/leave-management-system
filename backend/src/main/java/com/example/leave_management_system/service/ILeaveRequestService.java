@@ -52,4 +52,12 @@ public interface ILeaveRequestService {
      */
     LeaveRequestReadOnlyDTO cancelOwnLeave(UUID leaveUuid, String userEmail);
 
+    /**
+     * Cancels a future approved leave request selected by an authorized
+     * manager or administrator. Restores the employee's leave balance.
+     */
+    LeaveRequestReadOnlyDTO cancelApprovedLeave(
+            UUID leaveUuid
+    );
+
 }
