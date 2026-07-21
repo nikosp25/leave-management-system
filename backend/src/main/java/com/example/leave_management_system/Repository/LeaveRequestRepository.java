@@ -61,5 +61,31 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             @Param("currentYear") int currentYear
     );
 
+    /**
+     * Searches active leave requests by the employee's first name,
+     * last name, full name, or email address.
+     */
+    @Query("""
+    SELECT l
+    FROM LeaveRequest l
+    WHERE l.deleted = false
+      AND (
+          :search IS NULL
+          OR :search = ''
+          OR LOWER(l.user.firstName)
+             LIKE LOWER(CONCAT('%', :search, '%'))
+          OR LOWER(l.user.lastName)
+             LIKE LOWER(CONCAT('%', :search, '%'))
+          OR LOWER(l.user.email)
+             LIKE LOWER(CONCAT('%', :search, '%'))
+          OR LOWER(CONCAT(CONCAT(l.user.firstName, ' '), l.user.lastName))
+             LIKE LOWER(CONCAT('%', :search, '%'))
+      )
+""")
+    Page<LeaveRequest> searchActiveLeaveRequests(
+            @Param("search") String search,
+            Pageable pageable
+    );
+
 
 }
