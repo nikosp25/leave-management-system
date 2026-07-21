@@ -16,41 +16,75 @@ public interface ILeaveRequestService {
      * Prevents requests for another user, overlapping dates,
      * invalid date ranges, and requests exceeding the available balance.
      */
-    LeaveRequestReadOnlyDTO createLeaveRequest(UUID userUuid, LeaveRequestInsertDTO dto, String userEmail);
+    LeaveRequestReadOnlyDTO createLeaveRequest(
+            UUID userUuid,
+            LeaveRequestInsertDTO dto,
+            String userEmail
+    );
 
     /**
      * Approves or rejects a leave request and updates the user's leave balance.
      * Rejected and cancelled requests cannot be changed again.
      */
-    LeaveRequestReadOnlyDTO updateLeaveRequestStatus(UUID leaveUuid, LeaveRequestUpdateDTO dto);
+    LeaveRequestReadOnlyDTO updateLeaveRequestStatus(
+            UUID leaveUuid,
+            LeaveRequestUpdateDTO dto
+    );
 
-    LeaveRequestReadOnlyDTO getLeaveRequestByUuid(UUID leaveUuid);
+    LeaveRequestReadOnlyDTO getLeaveRequestByUuid(
+            UUID leaveUuid
+    );
 
     /**
      * Returns a user's leave requests.
      * Users may view their own requests, while users with READ_ALL_LEAVE
      * may view requests belonging to anyone.
      */
-    Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(UUID userUuid, String userEmail, boolean canReadAll, Pageable pageable);
+    Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByUser(
+            UUID userUuid,
+            String userEmail,
+            boolean canReadAll,
+            Pageable pageable
+    );
 
-    Page<LeaveRequestReadOnlyDTO> getAllLeaveRequests(Pageable pageable);
+    /**
+     * Returns active leave requests with pagination.
+     * When a search value is provided, filters requests by the employee's
+     * first name, last name, full name, or email address.
+     */
+    Page<LeaveRequestReadOnlyDTO> getAllLeaveRequests(
+            String search,
+            Pageable pageable
+    );
 
-    Page<LeaveRequestReadOnlyDTO> getDeletedLeaveRequests(Pageable pageable);
+    Page<LeaveRequestReadOnlyDTO> getDeletedLeaveRequests(
+            Pageable pageable
+    );
 
-    Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByStatus(String statusName, Pageable pageable);
+    Page<LeaveRequestReadOnlyDTO> getLeaveRequestsByStatus(
+            String statusName,
+            Pageable pageable
+    );
 
     /**
      * Returns the approved leave requests for a user in a specific year.
      * Access is limited to the owner unless the authenticated user
      * has permission to view all leave requests.
      */
-    List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(UUID userUuid, int year, String userEmail, boolean canReadAll);
+    List<LeaveRequestReadOnlyDTO> getApprovedLeavesForUserInYear(
+            UUID userUuid,
+            int year,
+            String userEmail,
+            boolean canReadAll
+    );
 
     /**
-     * Cancels a future pending or approved leave request owned by the
-     * authenticated user. Restores the leave balance if it was approved.
+     * Cancels a pending leave request owned by the authenticated user.
      */
-    LeaveRequestReadOnlyDTO cancelOwnLeave(UUID leaveUuid, String userEmail);
+    LeaveRequestReadOnlyDTO cancelOwnLeave(
+            UUID leaveUuid,
+            String userEmail
+    );
 
     /**
      * Cancels a future approved leave request selected by an authorized
@@ -59,5 +93,4 @@ public interface ILeaveRequestService {
     LeaveRequestReadOnlyDTO cancelApprovedLeave(
             UUID leaveUuid
     );
-
 }
