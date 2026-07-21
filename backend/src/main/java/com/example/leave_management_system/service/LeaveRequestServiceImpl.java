@@ -286,8 +286,12 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
-    public Page<LeaveRequestReadOnlyDTO> getAllLeaveRequests(Pageable pageable) {
-        return leaveRequestRepository.findAllByDeletedFalse(pageable)
+    public Page<LeaveRequestReadOnlyDTO> getAllLeaveRequests(
+            String search,
+            Pageable pageable
+    ) {
+        return leaveRequestRepository
+                .searchActiveLeaveRequests(search, pageable)
                 .map(leaveRequestMapper::toReadOnlyDTO);
     }
 
