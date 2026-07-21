@@ -53,9 +53,20 @@ public class LeaveRequestController {
 
     @PreAuthorize("hasAuthority('READ_ALL_LEAVE')")
     @GetMapping
-    @Operation(summary = "Get all leave requests", description = "Retrieves a paginated list of all active leave requests")
-    public ResponseEntity<Page<LeaveRequestReadOnlyDTO>> getAllLeaveRequests(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(leaveRequestService.getAllLeaveRequests(pageable));
+    @Operation(
+            summary = "Get all leave requests",
+            description = "Retrieves a paginated list of active leave requests and optionally filters them by employee name or email"
+    )
+    public ResponseEntity<Page<LeaveRequestReadOnlyDTO>> getAllLeaveRequests(
+            @RequestParam(required = false) String search,
+            @ParameterObject Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                leaveRequestService.getAllLeaveRequests(
+                        search,
+                        pageable
+                )
+        );
     }
 
     @PreAuthorize("hasAuthority('READ_ALL_LEAVE')")
