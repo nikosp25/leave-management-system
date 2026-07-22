@@ -1,6 +1,6 @@
-import AdminDashboard from '../components/dashboard/AdminDashboard'
-import EmployeeDashboard from '../components/dashboard/EmployeeDashboard'
-import ManagerDashboard from '../components/dashboard/ManagerDashboard'
+import AdminDashboard from '../components/dashboard/admin/AdminDashboard'
+import EmployeeDashboard from '../components/dashboard/employee/EmployeeDashboard'
+import ManagerDashboard from '../components/dashboard/management/ManagerDashboard'
 import { useAuth } from '../hooks/useAuth'
 
 function DashboardPage() {
