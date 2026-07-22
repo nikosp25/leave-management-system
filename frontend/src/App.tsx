@@ -4,8 +4,9 @@ import Layout from './shared/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ApplyLeavePage from './pages/ApplyLeavePage'
+import ManageLeavePage from './pages/ManageLeavePage'
 import ProtectedRoute from './routes/ProtectedRoute'
-import DashboardLayout from './components/dashboard/components/DashboardLayout'
+import DashboardLayout from './components/dashboard/layout/DashboardLayout'
 
 function App() {
     const { currentUser } = useAuth()
@@ -37,6 +38,11 @@ function App() {
                             <Route
                                 path="/dashboard/apply"
                                 element={<ApplyLeavePage />}
+                            />
+
+                            <Route
+                                path="/dashboard/manage-leave"
+                                element={<ManageLeavePage />}
                             />
                         </Route>
                     </Route>
