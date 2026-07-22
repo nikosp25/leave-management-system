@@ -1,4 +1,4 @@
-import ApplyLeaveForm from '../components/dashboard/components/ApplyLeaveForm'
+import ApplyLeaveForm from '../components/dashboard/employee/ApplyLeaveForm'
 
 function ApplyLeavePage() {
     return (
