@@ -5,10 +5,9 @@ import {
     ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
-
-type ApiErrorResponse = {
-    message?: string
-}
+import {
+    createLeaveRequest,
+} from '../../../services/leaveRequestApi'
 
 function ApplyLeaveForm() {
     const { currentUser } = useAuth()
@@ -68,42 +67,16 @@ function ApplyLeaveForm() {
         setSuccessMessage('')
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/api/v1/leave-requests/user/${currentUser.uuid}`,
+            await createLeaveRequest(
+                currentUser.uuid,
                 {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        leaveTypeName,
-                        startDate,
-                        endDate,
-                        reason: reason.trim(),
-                    }),
-                    signal: AbortSignal.timeout(7_000),
+                    leaveTypeName,
+                    startDate,
+                    endDate,
+                    reason: reason.trim(),
                 },
+                AbortSignal.timeout(7_000),
             )
-
-            if (!response.ok) {
-                let errorMessage =
-                    'Could not submit the leave request.'
-
-                try {
-                    const errorResponse: ApiErrorResponse =
-                        await response.json()
-
-                    if (errorResponse.message) {
-                        errorMessage =
-                            errorResponse.message
-                    }
-                } catch {
-                    // Use the default error message.
-                }
-
-                throw new Error(errorMessage)
-            }
 
             setSuccessMessage(
                 'Your leave request was submitted successfully.',
