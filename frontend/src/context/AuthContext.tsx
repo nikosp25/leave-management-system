@@ -5,6 +5,7 @@ import type { CurrentUser } from '../types/User'
 type AuthContextValue = {
     currentUser: CurrentUser | null
     setCurrentUser: (user: CurrentUser | null) => void
+    refreshCurrentUser: () => Promise<void>
     isAuthLoading: boolean
 }
 
@@ -12,15 +13,40 @@ type AuthProviderProps = {
     children: ReactNode
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(
-    undefined,
-)
+export const AuthContext = createContext<
+    AuthContextValue | undefined
+>(undefined)
 
-export function AuthProvider({ children }: AuthProviderProps) {
-    const [currentUser, setCurrentUser] = useState<CurrentUser | null>(
-        null,
-    )
-    const [isAuthLoading, setIsAuthLoading] = useState(true)
+export function AuthProvider({
+                                 children,
+                             }: AuthProviderProps) {
+    const [currentUser, setCurrentUser] =
+        useState<CurrentUser | null>(null)
+
+    const [isAuthLoading, setIsAuthLoading] =
+        useState(true)
+
+    async function refreshCurrentUser() {
+        const response = await fetch(
+            'http://localhost:8080/api/v1/users/me',
+            {
+                method: 'GET',
+                credentials: 'include',
+                signal: AbortSignal.timeout(7_000),
+            },
+        )
+
+        if (!response.ok) {
+            throw new Error(
+                'Could not refresh the current user.',
+            )
+        }
+
+        const user: CurrentUser =
+            await response.json()
+
+        setCurrentUser(user)
+    }
 
     useEffect(() => {
         let ignore = false
@@ -44,7 +70,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     return
                 }
 
-                const user: CurrentUser = await response.json()
+                const user: CurrentUser =
+                    await response.json()
 
                 if (!ignore) {
                     setCurrentUser(user)
@@ -72,6 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             value={{
                 currentUser,
                 setCurrentUser,
+                refreshCurrentUser,
                 isAuthLoading,
             }}
         >
@@ -79,5 +107,3 @@ export function AuthProvider({ children }: AuthProviderProps) {
         </AuthContext.Provider>
     )
 }
-
-
