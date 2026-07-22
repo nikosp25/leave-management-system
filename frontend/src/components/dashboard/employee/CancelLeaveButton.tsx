@@ -1,11 +1,9 @@
+import { cancelOwnLeaveRequest } from '../../../services/leaveRequestApi'
+
 type CancelLeaveButtonProps = {
     leaveRequestUuid: string
     onCancelled: () => void
     onError: (message: string) => void
-}
-
-type ApiErrorResponse = {
-    message?: string
 }
 
 function CancelLeaveButton({
@@ -25,32 +23,10 @@ function CancelLeaveButton({
         onError('')
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/api/v1/leave-requests/${leaveRequestUuid}/cancel`,
-                {
-                    method: 'PATCH',
-                    credentials: 'include',
-                    signal: AbortSignal.timeout(7_000),
-                },
+            await cancelOwnLeaveRequest(
+                leaveRequestUuid,
+                AbortSignal.timeout(7_000),
             )
-
-            if (!response.ok) {
-                let errorMessage =
-                    'Could not cancel the leave request.'
-
-                try {
-                    const errorResponse: ApiErrorResponse =
-                        await response.json()
-
-                    if (errorResponse.message) {
-                        errorMessage = errorResponse.message
-                    }
-                } catch {
-                    // Keep the default error message.
-                }
-
-                throw new Error(errorMessage)
-            }
 
             onCancelled()
         } catch (error) {
