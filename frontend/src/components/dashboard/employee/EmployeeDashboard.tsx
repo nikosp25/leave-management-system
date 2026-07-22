@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react'
-import {useAuth} from '../../hooks/useAuth'
-import LeaveBalanceCard from './components/LeaveBalanceCard'
-import MyLeaveRequests from './components/MyLeaveRequests'
-import type {LeaveRequest} from '../../types/LeaveRequest'
+import {useAuth} from '../../../hooks/useAuth'
+import LeaveBalanceCard from './LeaveBalanceCard'
+import MyLeaveRequests from './MyLeaveRequests'
+import {getApprovedLeavesForYear} from '../../../services/leaveRequestApi'
 
 function parseLocalDate(date: string) {
     const [year, month, day] = date
@@ -56,23 +56,12 @@ function EmployeeDashboard() {
 
         async function loadUsedLeaveDays() {
             try {
-                const response = await fetch(
-                    `http://localhost:8080/api/v1/leave-requests/user/${userUuid}/year/${currentYear}`,
-                    {
-                        method: 'GET',
-                        credentials: 'include',
-                        signal: AbortSignal.timeout(7_000),
-                    },
-                )
-
-                if (!response.ok) {
-                    throw new Error(
-                        'Could not load used leave days',
+                const approvedRequests =
+                    await getApprovedLeavesForYear(
+                        userUuid,
+                        currentYear,
+                        AbortSignal.timeout(7_000),
                     )
-                }
-
-                const approvedRequests: LeaveRequest[] =
-                    await response.json()
 
                 const totalUsedDays =
                     approvedRequests.reduce(
@@ -127,6 +116,3 @@ function EmployeeDashboard() {
 }
 
 export default EmployeeDashboard
-
-
-
