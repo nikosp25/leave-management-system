@@ -120,8 +120,16 @@ public class UserServiceImpl implements IUserService {
 
 
     @Override
-    public Page<UserReadOnlyDTO> getUsersByRole(String roleName, Pageable pageable) {
-        return userRepository.findByRole_NameAndDeletedFalse(roleName, pageable)
+    public Page<UserReadOnlyDTO> getUsersByRole(String roleName, String search, Pageable pageable) {
+        String normalizedSearch = search == null
+                ? ""
+                : search.trim();
+
+        return userRepository.searchActiveUsersByRole(
+                        roleName,
+                        normalizedSearch,
+                        pageable
+                )
                 .map(userMapper::toReadOnlyDTO);
     }
 
