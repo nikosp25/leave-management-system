@@ -58,12 +58,9 @@ function ManageLeaveRequests() {
                 <h2 className="text-lg font-semibold text-slate-900">
                     Employee leave requests
                 </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                    Search for employees and review their leave
-                    requests.
-                </p>
             </div>
+
+
 
             <ManageLeaveToolbar
                 searchInput={searchInput}
