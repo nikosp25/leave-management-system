@@ -34,7 +34,7 @@ public interface IUserService {
 
     Page<UserReadOnlyDTO> getAllUsers(Pageable pageable);
 
-    Page<UserReadOnlyDTO> getUsersByRole(String roleName, Pageable pageable);
+    Page<UserReadOnlyDTO> getUsersByRole(String roleName, String search, Pageable pageable);
 
     // Read Operations (Deleted Users)
     Page<UserReadOnlyDTO> getDeletedUsers(Pageable pageable);
