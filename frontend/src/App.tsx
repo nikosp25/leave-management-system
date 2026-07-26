@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ApplyLeavePage from './pages/ApplyLeavePage'
 import ManageLeavePage from './pages/ManageLeavePage'
+import EmployeeSearchPage from './pages/EmployeeSearchPage'
 import ProtectedRoute from './routes/ProtectedRoute'
 import DashboardLayout from './components/dashboard/layout/DashboardLayout'
 
@@ -43,6 +44,11 @@ function App() {
                             <Route
                                 path="/dashboard/manage-leave"
                                 element={<ManageLeavePage />}
+                            />
+
+                            <Route
+                                path="/dashboard/employees"
+                                element={<EmployeeSearchPage />}
                             />
                         </Route>
                     </Route>
