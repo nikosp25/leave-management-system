@@ -6,11 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+
 
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -43,5 +42,32 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUuid(UUID uuid);
 
     Page<User> findByDeletedTrue(Pageable pageable);
+
+    @Query("""
+    SELECT u
+    FROM User u
+    WHERE u.deleted = false
+    AND UPPER(u.role.name) = UPPER(:roleName)
+    AND (
+        :search = ''
+        OR LOWER(u.firstName)
+            LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(u.lastName)
+            LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(
+            CONCAT(
+                CONCAT(u.firstName, ' '),
+                u.lastName
+            )
+        ) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(u.email)
+            LIKE LOWER(CONCAT('%', :search, '%'))
+    )
+""")
+    Page<User> searchActiveUsersByRole(
+            @Param("roleName") String roleName,
+            @Param("search") String search,
+            Pageable pageable
+    );
 
 }
