@@ -74,15 +74,23 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
-
     @PreAuthorize(
             "hasAuthority('MANAGE_USERS') or " +
                     "(hasAuthority('READ_EMPLOYEES') and #roleName.equalsIgnoreCase('EMPLOYEE'))"
     )
     @GetMapping("/role/{roleName}")
-    @Operation(summary = "Get users by role", description = "Retrieves a paginated list of active employees filtered by their role")
-    public ResponseEntity<Page<UserReadOnlyDTO>> getUsersByRole(@PathVariable String roleName, @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsersByRole(roleName, pageable));
+    @Operation(
+            summary = "Get users by role",
+            description = "Retrieves a paginated list of active users filtered by role, name, or email"
+    )
+    public ResponseEntity<Page<UserReadOnlyDTO>> getUsersByRole(
+            @PathVariable String roleName,
+            @RequestParam(required = false) String search,
+            @ParameterObject Pageable pageable) {
+
+        return ResponseEntity.ok(
+                userService.getUsersByRole(roleName, search, pageable)
+        );
     }
 
     // ---------------------------------------------------------
