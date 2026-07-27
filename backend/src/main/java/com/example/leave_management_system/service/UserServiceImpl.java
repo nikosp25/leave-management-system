@@ -5,10 +5,7 @@ import com.example.leave_management_system.Repository.UserRepository;
 import com.example.leave_management_system.dto.user.UserInsertDTO;
 import com.example.leave_management_system.dto.user.UserReadOnlyDTO;
 import com.example.leave_management_system.dto.user.UserUpdateDTO;
-import com.example.leave_management_system.exceptions.EmailAlreadyExistsException;
-import com.example.leave_management_system.exceptions.InsufficientLeaveBalanceException;
-import com.example.leave_management_system.exceptions.RoleNotFoundException;
-import com.example.leave_management_system.exceptions.UserNotFoundException;
+import com.example.leave_management_system.exceptions.*;
 import com.example.leave_management_system.mapper.UserMapper;
 import com.example.leave_management_system.model.Role;
 import com.example.leave_management_system.model.User;
@@ -103,9 +100,15 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public void deleteUser(UUID userUuid) {
+    public void deleteUser(UUID userUuid, String currentUserEmail) {
         User user = userRepository.findByUuidAndDeletedFalse(userUuid)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (user.getEmail().equalsIgnoreCase(currentUserEmail)) {
+            throw new SelfDeletionNotAllowedException(
+                    "You cannot delete your own account"
+            );
+        }
 
         user.softDelete();
         userRepository.save(user);
