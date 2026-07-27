@@ -2,6 +2,7 @@ import {
     CalendarPlus,
     ClipboardCheck,
     LayoutDashboard,
+    UserCog,
     Users,
     type LucideIcon,
 } from 'lucide-react'
@@ -11,6 +12,7 @@ export type DashboardNavigationItem = {
     path: string
     icon: LucideIcon
     requiredCapability: string | null
+    allowedRoles?: string[]
     end?: boolean
 }
 
@@ -35,9 +37,16 @@ export const dashboardMenu: DashboardNavigationItem[] = [
         requiredCapability: 'READ_ALL_LEAVE',
     },
     {
+        label: 'Manage users',
+        path: '/dashboard/manage-users',
+        icon: UserCog,
+        requiredCapability: 'MANAGE_USERS',
+    },
+    {
         label: 'Employees',
         path: '/dashboard/employees',
         icon: Users,
         requiredCapability: 'READ_EMPLOYEES',
+        allowedRoles: ['MANAGER'],
     },
 ]
