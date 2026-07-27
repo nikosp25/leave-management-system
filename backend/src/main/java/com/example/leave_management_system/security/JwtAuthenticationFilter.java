@@ -1,6 +1,7 @@
 package com.example.leave_management_system.security;
 
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(
@@ -51,27 +54,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 3. Extract the email from the token
-        userEmail = jwtService.extractUsername(jwt);
+        try {
+            // 3. Extract the email from the token
+            userEmail = jwtService.extractUsername(jwt);
 
-        // 4. If there is an email and the user is not yet authenticated in this specific request
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // 4. If there is an email and the user is not yet authenticated in this specific request
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Go to the database and get the user
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                // Go to the database and get the user
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            // 5. If the token is valid and not expired, log them in.
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // 5. If the token is valid and not expired, log them in.
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // User is logged in.
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // User is logged in.
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (JwtException | IllegalArgumentException exception) {
+            SecurityContextHolder.clearContext();
+
+            authenticationEntryPoint.commence(
+                    request,
+                    response,
+                    new BadCredentialsException(
+                            "Invalid or expired JWT.",
+                            exception
+                    )
+            );
+
+            return;
         }
 
         // 6. Continue the chain
