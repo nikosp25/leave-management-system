@@ -32,12 +32,12 @@ public interface IUserService {
 
     UserReadOnlyDTO getUserByEmail(String email);
 
-    Page<UserReadOnlyDTO> getAllUsers(Pageable pageable);
+    Page<UserReadOnlyDTO> getAllUsers(String roleName, String search, Pageable pageable);
 
     Page<UserReadOnlyDTO> getUsersByRole(String roleName, String search, Pageable pageable);
 
     // Read Operations (Deleted Users)
-    Page<UserReadOnlyDTO> getDeletedUsers(Pageable pageable);
+    Page<UserReadOnlyDTO> getDeletedUsers(String roleName, String search, Pageable pageable);
 
     UserReadOnlyDTO getDeletedUserByUuid(UUID userUuid);
 
