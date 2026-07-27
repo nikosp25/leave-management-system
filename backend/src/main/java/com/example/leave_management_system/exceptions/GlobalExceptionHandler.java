@@ -160,7 +160,8 @@ public class GlobalExceptionHandler {
     // --- 5c. Catch "403 Forbidden" Operations ---
     @ExceptionHandler({
             ForbiddenOperationException.class,
-            AuthorizationDeniedException.class})
+            AuthorizationDeniedException.class,
+            SelfDeletionNotAllowedException.class})
 
     public ResponseEntity<ErrorResponse> handleForbiddenOperation(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
