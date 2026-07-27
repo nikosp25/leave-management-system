@@ -5,6 +5,7 @@ import type {
     CreateLeaveRequestBody,
     GetUserLeaveRequestsParameters,
 } from './leaveRequestTypes'
+import { apiFetch } from '../apiFetch'
 
 const LEAVE_REQUESTS_URL =
     'http://localhost:8080/api/v1/leave-requests'
@@ -28,11 +29,10 @@ export async function getApprovedLeavesForYear(
     year: number,
     signal?: AbortSignal,
 ): Promise<LeaveRequest[]> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${LEAVE_REQUESTS_URL}/user/${userUuid}/year/${year}`,
         {
             method: 'GET',
-            credentials: 'include',
             signal,
         },
     )
@@ -51,11 +51,10 @@ export async function createLeaveRequest(
     requestBody: CreateLeaveRequestBody,
     signal?: AbortSignal,
 ): Promise<LeaveRequest> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${LEAVE_REQUESTS_URL}/user/${userUuid}`,
         {
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -92,11 +91,10 @@ export async function getUserLeaveRequests({
         sort: `${sortField},${sortDirection}`,
     })
 
-    const response = await fetch(
+    const response = await apiFetch(
         `${LEAVE_REQUESTS_URL}/user/${userUuid}?${parameters.toString()}`,
         {
             method: 'GET',
-            credentials: 'include',
             signal,
         },
     )
@@ -114,11 +112,10 @@ export async function cancelOwnLeaveRequest(
     leaveRequestUuid: string,
     signal?: AbortSignal,
 ): Promise<void> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${LEAVE_REQUESTS_URL}/${leaveRequestUuid}/cancel`,
         {
             method: 'PATCH',
-            credentials: 'include',
             signal,
         },
     )

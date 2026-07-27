@@ -1,5 +1,6 @@
 import type { CurrentUser } from '../../types/User'
 import type { PageResponse } from '../../types/PageResponse'
+import { apiFetch } from '../apiFetch'
 
 const USERS_URL =
     'http://localhost:8080/api/v1/users'
@@ -41,11 +42,10 @@ export async function getEmployees({
         parameters.set('search', search)
     }
 
-    const response = await fetch(
+    const response = await apiFetch(
         `${USERS_URL}/role/EMPLOYEE?${parameters.toString()}`,
         {
             method: 'GET',
-            credentials: 'include',
             signal,
         },
     )

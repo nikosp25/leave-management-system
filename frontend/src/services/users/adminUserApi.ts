@@ -1,6 +1,7 @@
 import type { CurrentUser } from '../../types/User'
 import type { PageResponse } from '../../types/PageResponse'
 import type { SortDirection } from './employeeUserApi'
+import { apiFetch } from '../apiFetch'
 
 const USERS_URL =
     'http://localhost:8080/api/v1/users'
@@ -75,11 +76,10 @@ export async function getUsersForManagement({
         ? `${USERS_URL}/deleted`
         : USERS_URL
 
-    const response = await fetch(
+    const response = await apiFetch(
         `${endpoint}?${parameters.toString()}`,
         {
             method: 'GET',
-            credentials: 'include',
             signal,
         },
     )
@@ -95,11 +95,10 @@ export async function getUserForManagement(
     userUuid: string,
     signal?: AbortSignal,
 ): Promise<CurrentUser> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${USERS_URL}/${userUuid}`,
         {
             method: 'GET',
-            credentials: 'include',
             signal,
         },
     )
@@ -114,9 +113,8 @@ export async function getUserForManagement(
 export async function createUser(
     user: CreateUserRequest,
 ): Promise<CurrentUser> {
-    const response = await fetch(USERS_URL, {
+    const response = await apiFetch(USERS_URL, {
         method: 'POST',
-        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -134,11 +132,10 @@ export async function updateUser(
     userUuid: string,
     user: UpdateUserRequest,
 ): Promise<CurrentUser> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${USERS_URL}/${userUuid}`,
         {
             method: 'PUT',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -156,11 +153,10 @@ export async function updateUser(
 export async function deleteUser(
     userUuid: string,
 ): Promise<void> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${USERS_URL}/${userUuid}`,
         {
             method: 'DELETE',
-            credentials: 'include',
         },
     )
 

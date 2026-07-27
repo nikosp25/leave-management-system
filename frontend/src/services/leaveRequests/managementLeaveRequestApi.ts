@@ -3,6 +3,7 @@ import type { PageResponse } from '../../types/PageResponse'
 import type {
     GetManagedLeaveRequestsParameters,
 } from './leaveRequestTypes'
+import { apiFetch } from '../apiFetch'
 
 const LEAVE_REQUESTS_URL =
     'http://localhost:8080/api/v1/leave-requests'
@@ -33,11 +34,10 @@ export async function getManagedLeaveRequests({
             ? LEAVE_REQUESTS_URL
             : `${LEAVE_REQUESTS_URL}/status/${statusFilter}`
 
-    const response = await fetch(
+    const response = await apiFetch(
         `${endpoint}?${parameters.toString()}`,
         {
             method: 'GET',
-            credentials: 'include',
             signal,
         },
     )
@@ -56,11 +56,10 @@ export async function updateManagedLeaveStatus(
     newStatus: 'APPROVED' | 'REJECTED',
     comment: string | null,
 ): Promise<LeaveRequest> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${LEAVE_REQUESTS_URL}/${requestUuid}/status`,
         {
             method: 'PUT',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -83,11 +82,10 @@ export async function updateManagedLeaveStatus(
 export async function cancelManagedLeave(
     requestUuid: string,
 ): Promise<LeaveRequest> {
-    const response = await fetch(
+    const response = await apiFetch(
         `${LEAVE_REQUESTS_URL}/${requestUuid}/management-cancel`,
         {
             method: 'PATCH',
-            credentials: 'include',
         },
     )
 

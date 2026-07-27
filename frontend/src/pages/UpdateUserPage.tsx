@@ -10,6 +10,7 @@ import type { CurrentUser } from '../types/User'
 import {
     getUserForManagement,
 } from '../services/userApi'
+import { SessionExpiredError } from '../services/apiFetch'
 import useManagedUserActions from '../hooks/useManagedUserActions'
 import UserForm, {
     type UserFormValues,
@@ -38,6 +39,8 @@ function UpdateUserPage() {
             return
         }
 
+        const userUuid = uuid
+
         let ignore = false
         const controller = new AbortController()
 
@@ -53,7 +56,7 @@ function UpdateUserPage() {
             try {
                 const loadedUser =
                     await getUserForManagement(
-                        uuid!,
+                        userUuid,
                         controller.signal,
                     )
 
@@ -62,18 +65,21 @@ function UpdateUserPage() {
                 }
             } catch (error) {
                 if (
-                    !ignore &&
-                    !(
+                    ignore ||
+                    error instanceof SessionExpiredError ||
+                    (
                         error instanceof DOMException &&
                         error.name === 'AbortError'
                     )
                 ) {
-                    setLoadError(
-                        error instanceof Error
-                            ? error.message
-                            : 'An unexpected error occurred.',
-                    )
+                    return
                 }
+
+                setLoadError(
+                    error instanceof Error
+                        ? error.message
+                        : 'An unexpected error occurred.',
+                )
             } finally {
                 if (!ignore) {
                     setIsLoading(false)

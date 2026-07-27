@@ -6,6 +6,7 @@ import {
     type SortDirection,
     type UserRoleFilter,
 } from '../services/userApi'
+import { SessionExpiredError } from '../services/apiFetch'
 import { useAuth } from './useAuth'
 
 const PAGE_SIZE = 5
@@ -87,18 +88,21 @@ function useManageUsers() {
                 }
             } catch (error) {
                 if (
-                    !ignore &&
-                    !(
+                    ignore ||
+                    error instanceof SessionExpiredError ||
+                    (
                         error instanceof DOMException &&
                         error.name === 'AbortError'
                     )
                 ) {
-                    setError(
-                        error instanceof Error
-                            ? error.message
-                            : 'An unexpected error occurred.',
-                    )
+                    return
                 }
+
+                setError(
+                    error instanceof Error
+                        ? error.message
+                        : 'An unexpected error occurred.',
+                )
             } finally {
                 if (!ignore) {
                     setIsLoading(false)

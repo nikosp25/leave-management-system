@@ -6,6 +6,7 @@ import {
     type CreateUserRequest,
     type UpdateUserRequest,
 } from '../services/userApi'
+import { SessionExpiredError } from '../services/apiFetch'
 
 function useManagedUserActions() {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -14,6 +15,19 @@ function useManagedUserActions() {
         useState<string | null>(null)
 
     const [actionError, setActionError] = useState('')
+
+    function storeActionError(error: unknown) {
+        if (error instanceof SessionExpiredError) {
+            return
+        }
+
+        const message =
+            error instanceof Error
+                ? error.message
+                : 'An unexpected error occurred.'
+
+        setActionError(message)
+    }
 
     async function createManagedUser(
         user: CreateUserRequest,
@@ -24,12 +38,7 @@ function useManagedUserActions() {
         try {
             return await createUser(user)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : 'An unexpected error occurred.'
-
-            setActionError(message)
+            storeActionError(error)
             throw error
         } finally {
             setIsSubmitting(false)
@@ -47,12 +56,7 @@ function useManagedUserActions() {
         try {
             return await updateUser(userUuid, user)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : 'An unexpected error occurred.'
-
-            setActionError(message)
+            storeActionError(error)
             throw error
         } finally {
             setIsSubmitting(false)
@@ -67,12 +71,7 @@ function useManagedUserActions() {
         try {
             await deleteUser(userUuid)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : 'An unexpected error occurred.'
-
-            setActionError(message)
+            storeActionError(error)
             throw error
         } finally {
             setProcessingUserUuid(null)

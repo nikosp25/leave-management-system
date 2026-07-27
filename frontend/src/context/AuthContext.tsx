@@ -1,6 +1,14 @@
-import { createContext, useEffect, useState } from 'react'
+import {
+    createContext,
+    useEffect,
+    useState,
+} from 'react'
 import type { ReactNode } from 'react'
 import type { CurrentUser } from '../types/User'
+import {
+    apiFetch,
+    SESSION_EXPIRED_EVENT,
+} from '../services/apiFetch'
 
 type AuthContextValue = {
     currentUser: CurrentUser | null
@@ -27,11 +35,10 @@ export function AuthProvider({
         useState(true)
 
     async function refreshCurrentUser() {
-        const response = await fetch(
+        const response = await apiFetch(
             'http://localhost:8080/api/v1/users/me',
             {
                 method: 'GET',
-                credentials: 'include',
                 signal: AbortSignal.timeout(7_000),
             },
         )
@@ -49,15 +56,32 @@ export function AuthProvider({
     }
 
     useEffect(() => {
+        function handleSessionExpired() {
+            setCurrentUser(null)
+        }
+
+        window.addEventListener(
+            SESSION_EXPIRED_EVENT,
+            handleSessionExpired,
+        )
+
+        return () => {
+            window.removeEventListener(
+                SESSION_EXPIRED_EVENT,
+                handleSessionExpired,
+            )
+        }
+    }, [])
+
+    useEffect(() => {
         let ignore = false
 
         async function restoreCurrentUser() {
             try {
-                const response = await fetch(
+                const response = await apiFetch(
                     'http://localhost:8080/api/v1/users/me',
                     {
                         method: 'GET',
-                        credentials: 'include',
                         signal: AbortSignal.timeout(7_000),
                     },
                 )
