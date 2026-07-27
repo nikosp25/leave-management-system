@@ -241,16 +241,33 @@ Each demo account starts with **25 available leave days**.
 >
 > **Do not reuse these values in production.** Before any real deployment, replace them with environment variables or a secrets manager, use HTTPS (`jwtCookie.setSecure(true)`), and generate a strong, unique JWT signing key.
 
+
 ## Screenshots
 
-<!-- Replace placeholder paths with actual screenshot files when available -->
+### Login Page
 
-| Screen | Preview |
-|---|---|
-| Login Page | ![Login page](screenshots/login-page.png) |
-| Employee Overview | ![Employee overview](screenshots/employee-overview.png) |
-| Apply for Leave | ![Apply for leave](screenshots/apply-for-leave.png) |
-| Manage Leave (Manager) | ![Manager leave management](screenshots/manage-leave.png) |
-| Employee Directory (Manager) | ![Manager employee directory](screenshots/employees-dashboard.png) |
-| Manage Users (Admin) | ![Admin user management](screenshots/manage-users.png) |
-| Create User (Admin) | ![Admin create user page](screenshots/create-user.png) |
+<img src="screenshots/login-page.png" alt="Login page" width="100%">
+
+### Employee Overview
+
+<img src="screenshots/employee-overview.png" alt="Employee overview" width="100%">
+
+### Apply for Leave
+
+<img src="screenshots/apply-for-leave.png" alt="Apply for leave" width="100%">
+
+### Manage Leave — Manager
+
+<img src="screenshots/manage-leave.png" alt="Manager leave management" width="100%">
+
+### Employee Directory — Manager
+
+<img src="screenshots/employees-dashboard.png" alt="Manager employee directory" width="100%">
+
+### Manage Users — Admin
+
+<img src="screenshots/manage-users.png" alt="Admin user management" width="100%">
+
+### Create User — Admin
+
+<img src="screenshots/create-user.png" alt="Admin create user page" width="100%">
