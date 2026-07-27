@@ -24,8 +24,9 @@ public interface IUserService {
 
     /**
      * Soft-deletes a user while keeping their data and leave history.
+     * Prevents the authenticated user from deleting their own account.
      */
-    void deleteUser(UUID userUuid);
+    void deleteUser(UUID userUuid, String currentUserEmail);
 
     // Read Operations (Active Users)
     UserReadOnlyDTO getUserByUuid(UUID userUuid);
