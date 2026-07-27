@@ -247,9 +247,10 @@ Each demo account starts with **25 available leave days**.
 
 | Screen | Preview |
 |---|---|
-| Login | _Screenshot placeholder — login page_ |
-| Employee Dashboard | _Screenshot placeholder — leave balance and request history_ |
-| Apply for Leave | _Screenshot placeholder — leave submission form_ |
-| Manage Leave (Manager) | _Screenshot placeholder — approval workflow_ |
-| Manage Users (Admin) | _Screenshot placeholder — user management table_ |
-| Employee Search (Manager) | _Screenshot placeholder — employee directory_ |
+| Login Page | ![Login page](screenshots/login-page.png) |
+| Employee Overview | ![Employee overview](screenshots/employee-overview.png) |
+| Apply for Leave | ![Apply for leave](screenshots/apply-for-leave.png) |
+| Manage Leave (Manager) | ![Manager leave management](screenshots/manage-leave.png) |
+| Employee Directory (Manager) | ![Manager employee directory](screenshots/employees-dashboard.png) |
+| Manage Users (Admin) | ![Admin user management](screenshots/manage-users.png) |
+| Create User (Admin) | ![Admin create user page](screenshots/create-user.png) |
