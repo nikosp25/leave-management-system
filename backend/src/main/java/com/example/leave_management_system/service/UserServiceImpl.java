@@ -113,8 +113,21 @@ public class UserServiceImpl implements IUserService {
 
 
     @Override
-    public Page<UserReadOnlyDTO> getAllUsers(Pageable pageable) {
-        return userRepository.findAllByDeletedFalse(pageable)
+    public Page<UserReadOnlyDTO> getAllUsers(String roleName, String search, Pageable pageable) {
+        String normalizedRoleName = roleName == null
+                ? ""
+                : roleName.trim();
+
+        String normalizedSearch = search == null
+                ? ""
+                : search.trim();
+
+        return userRepository.searchUsers(
+                        false,
+                        normalizedRoleName,
+                        normalizedSearch,
+                        pageable
+                )
                 .map(userMapper::toReadOnlyDTO);
     }
 
@@ -135,8 +148,21 @@ public class UserServiceImpl implements IUserService {
 
 
     @Override
-    public Page<UserReadOnlyDTO> getDeletedUsers(Pageable pageable) {
-        return userRepository.findByDeletedTrue(pageable)
+    public Page<UserReadOnlyDTO> getDeletedUsers(String roleName, String search, Pageable pageable) {
+        String normalizedRoleName = roleName == null
+                ? ""
+                : roleName.trim();
+
+        String normalizedSearch = search == null
+                ? ""
+                : search.trim();
+
+        return userRepository.searchUsers(
+                        true,
+                        normalizedRoleName,
+                        normalizedSearch,
+                        pageable
+                )
                 .map(userMapper::toReadOnlyDTO);
     }
 
