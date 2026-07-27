@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
 import java.time.Instant;
@@ -32,6 +33,21 @@ public class GlobalExceptionHandler {
             LeaveStatusNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFoundExceptions(RuntimeException ex, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFoundException(
+            NoResourceFoundException ex,
+            HttpServletRequest request
+    ) {
         ErrorResponse errorResponse = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.NOT_FOUND.value(),
