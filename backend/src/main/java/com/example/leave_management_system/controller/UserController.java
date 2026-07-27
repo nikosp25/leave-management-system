@@ -166,9 +166,15 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
     @DeleteMapping("/{uuid}")
-    @Operation(summary = "Delete user", description = "Soft-deletes an employee, locking their account while preserving history")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID uuid) {
-        userService.deleteUser(uuid);
-        return ResponseEntity.noContent().build(); // Returns HTTP 204
+    @Operation(
+            summary = "Delete user",
+            description = "Soft-deletes a user account while preserving its history. Administrators cannot delete their own account."
+    )
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable UUID uuid,
+            java.security.Principal principal) {
+
+        userService.deleteUser(uuid, principal.getName());
+        return ResponseEntity.noContent().build();
     }
 }
