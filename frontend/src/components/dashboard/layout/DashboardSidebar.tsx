@@ -11,6 +11,16 @@ function DashboardSidebar() {
 
     const visibleMenuItems = dashboardMenu.filter(
         (menuItem) => {
+            const isRoleAllowed =
+                !menuItem.allowedRoles ||
+                menuItem.allowedRoles.includes(
+                    currentUser.roleName,
+                )
+
+            if (!isRoleAllowed) {
+                return false
+            }
+
             if (menuItem.requiredCapability === null) {
                 return true
             }
