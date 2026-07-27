@@ -55,9 +55,18 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
     @GetMapping
-    @Operation(summary = "Get all active users", description = "Retrieves a paginated list of all active employees")
-    public ResponseEntity<Page<UserReadOnlyDTO>> getAllUsers(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(userService.getAllUsers(pageable));
+    @Operation(
+            summary = "Get all active users",
+            description = "Retrieves a paginated list of active users filtered by role, name, or email"
+    )
+    public ResponseEntity<Page<UserReadOnlyDTO>> getAllUsers(
+            @RequestParam(required = false) String roleName,
+            @RequestParam(required = false) String search,
+            @ParameterObject Pageable pageable) {
+
+        return ResponseEntity.ok(
+                userService.getAllUsers(roleName, search, pageable)
+        );
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
@@ -99,9 +108,18 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('READ_DELETED_USERS')")
     @GetMapping("/deleted")
-    @Operation(summary = "Get all deleted users", description = "Retrieves a paginated list of offboarded employees")
-    public ResponseEntity<Page<UserReadOnlyDTO>> getDeletedUsers(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(userService.getDeletedUsers(pageable));
+    @Operation(
+            summary = "Get all deleted users",
+            description = "Retrieves a paginated list of deleted users filtered by role, name, or email"
+    )
+    public ResponseEntity<Page<UserReadOnlyDTO>> getDeletedUsers(
+            @RequestParam(required = false) String roleName,
+            @RequestParam(required = false) String search,
+            @ParameterObject Pageable pageable) {
+
+        return ResponseEntity.ok(
+                userService.getDeletedUsers(roleName, search, pageable)
+        );
     }
 
     @PreAuthorize("hasAuthority('READ_DELETED_USERS')")
